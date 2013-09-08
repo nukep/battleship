@@ -11,57 +11,73 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JTextField;
 
-public class JoinPanel {
+public class JoinPanel extends JPanel {
+    private static final long serialVersionUID = 1L;
+
     private class JoinButtonListener implements ActionListener {
         private JoinCallback joinCallback;
-        private JTextField addressField;
+        private JTextField playerNameField, addressField;
 
         private JoinButtonListener(JoinCallback joinCallback,
-                                   JTextField addressField)
+                                    JTextField playerNameField,
+                                    JTextField addressField)
         {
             this.joinCallback = joinCallback;
+            this.playerNameField = playerNameField;
             this.addressField = addressField;
         }
 
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            joinCallback.join(addressField.getText());
+            joinCallback.join(playerNameField.getText(),
+                              addressField.getText());
         }
     }
-
-    private JPanel panel;
     
     public JoinPanel(final JoinCallback joinCallback, JRootPane rootPane)
     {
-        panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        
+        JTextField playerNameField = new JTextField();
         JTextField addressField = new JTextField();
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 0;
-        c.ipadx = 10;
-        c.gridx = 0;
-        panel.add(new JLabel("Server IP:"), c);
-        c.weightx = 1.0;
-        c.gridx = 1;
-        panel.add(addressField, c);
-        c.gridwidth = 1;
-        c.gridy = 1;
-        
         JButton joinButton = new JButton("Join");
         joinButton.addActionListener(
-                new JoinButtonListener(joinCallback, addressField)
+                new JoinButtonListener(joinCallback,
+                                       playerNameField, addressField)
         );
-        panel.add(joinButton, c);
+        
+        setLayout(new GridBagLayout());
+        
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.ipadx = 10;
+        
+        c.weightx = 0;
+        c.gridx = 0;
+        c.gridy = 0;
+        add(new JLabel("Your name:"), c);
+        c.gridy++;
+        add(new JLabel("Server:"), c);
+        
+        c.weightx = 0.0;
+        c.gridwidth = 2;
+        c.gridx = 1;
+        c.gridy = 0;
+        add(playerNameField, c);
+        c.gridy++;
+        add(addressField, c);
+        
+        // Add a dummy label for padding
+        c.weightx = 1.0;
+        c.gridwidth = 1;
+        c.gridx = 1;
+        c.gridy++;
+        add(new JLabel(), c);
+
+        c.weightx = 0.5;
+        c.gridx = 2;
+        add(joinButton, c);
         
         rootPane.setDefaultButton(joinButton);
-    }
-    
-    public JPanel getPanel()
-    {
-        return panel;
     }
 }

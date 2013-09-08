@@ -35,22 +35,28 @@ public class MainWindow {
     public MainWindow()
     {
         frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(640, 480);
         
         joinCallback = new JoinCallback() {
             @Override
-            public void join(String address)
+            public void join(String playerName, String address)
             {
-                JOptionPane.showMessageDialog(null, address);
+                JOptionPane.showMessageDialog(null, playerName + "\n" + address);
             }
         };
         
-        JoinPanel p = new JoinPanel(joinCallback, frame.getRootPane());
-        DisplayPanel dp = new DisplayPanel();
+        JoinPanel jp = new JoinPanel(joinCallback, frame.getRootPane());
+        FleetMapPanel dp = new FleetMapPanel(new MapInterface() {
+            
+            @Override
+            public void boxActivate(int x, int y) {
+                System.out.printf("%d x %d\n", x, y);
+            }
+        });
         
-        //frame.add(p.getPanel());
-        frame.add(dp.getPanel());
+        //frame.add(jp);
+        frame.add(dp);
     }
     
     public void show()
