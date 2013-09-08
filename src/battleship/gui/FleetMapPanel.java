@@ -1,45 +1,88 @@
 package battleship.gui;
 
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
+import java.awt.Polygon;
 import java.awt.RenderingHints;
-import java.awt.Transparency;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.image.BufferedImage;
-
 import javax.swing.JPanel;
-
-import sun.java2d.pipe.DrawImage;
 
 class Coord {
     public double x, y;
 }
 
 class Transform {
+    private double top_l, bottom_l;
+    private double top_r, bottom_r;
     private double top_w, bottom_w;
+    private double top_y, height;
     // Restrictions: top_w != 0
     
-    public double getY(double p)
+    public Transform(double top_l, double bottom_l,
+                     double top_r, double bottom_r,
+                     double top_y, double bottom_y)
     {
-        // (b/t)^p * t
+        this.top_l = top_l;
+        this.bottom_l = bottom_l;
         
-        return Math.pow(bottom_w / top_w, p) * top_w;
-        /*
-        return (Math.pow(bottom_w, p) * Math.pow(top_w, 1-p) - top_w)
-                / (bottom_w - top_w);*/
+        this.top_r = top_r;
+        this.bottom_r = bottom_r;
+        this.top_w = top_l + top_r;
+        this.bottom_w = bottom_l + bottom_r;
+        
+        this.top_y = top_y;
+        this.height = bottom_y - top_y;
     }
     
-    public double getP(double y)
+    private double lerp(double a, double b, double p)
     {
-        // log((b*y)/t - y + 1) / log(b/t)
+        return (b-a)*p + a;
+    }
+    
+    /* x/y range from 0..1 */
+    public Coord transform(double x, double y)
+    {
+        Coord c = new Coord();
         
-        return Math.log((bottom_w*y)/top_w - y + 1) / Math.log(bottom_w/top_w);
+        double a = getY(y);
+        double l = lerp(top_l, bottom_l, a);
+        double r = lerp(top_r, bottom_r, a);
+
+        c.x = lerp(l, r, x);
+        c.y = a * height + top_y;
+        
+        return c;
+    }
+    
+    /* returns Coord range from 0..1 */
+    public Coord transformInverse(double x, double y)
+    {
+        Coord c = new Coord();
+        
+        c.y = getP(y);
+        
+        double a = getY(c.y);
+        double l = lerp(top_l, bottom_l, a);
+        double r = lerp(top_r, bottom_r, a);
+        
+        c.x = (x - l)/(r - l);
+        
+        return c;
+    }
+    
+    private double getY(double p)
+    {        
+        return ((Math.pow(bottom_w / top_w, p) - 1)*top_w)
+                 / (bottom_w - top_w);
+    }
+    
+    private double getP(double y)
+    {
+        return Math.log((y - top_y)*(bottom_w - top_w)/height / top_w + 1)
+                / Math.log(bottom_w/top_w);
     }
 }
 
@@ -63,8 +106,9 @@ public class FleetMapPanel extends JPanel {
     
         @Override
         public void mouseClicked(MouseEvent arg0) {
-            int x = arg0.getX() / grid_box_size - 1;
-            int y = arg0.getY() / grid_box_size - 1;
+            Coord c = tr.transformInverse(arg0.getX(), arg0.getY());
+            int x = (int)Math.floor(c.x*grid_columns);
+            int y = (int)Math.floor(c.y*grid_rows);
             if (x >= 0 && y >= 0 && x < grid_columns && y < grid_rows) {
                 gridInterface.boxActivate(x, y);
             }
@@ -75,7 +119,6 @@ public class FleetMapPanel extends JPanel {
         @Override
         public void mouseMoved(MouseEvent e) {
             // TODO Auto-generated method stub
-            
         }
     
         @Override
@@ -88,9 +131,9 @@ public class FleetMapPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     
     private MapInterface gridInterface;
-    int grid_columns = 10;
-    int grid_rows = 10;
-    int grid_box_size = 40;
+    private Transform tr;
+    private int grid_columns = 10;
+    private int grid_rows = 10;
     
     private static void setAntialias(Graphics2D g)
     {
@@ -102,6 +145,7 @@ public class FleetMapPanel extends JPanel {
     public FleetMapPanel(MapInterface gridInterface)
     {
         this.gridInterface = gridInterface;
+        tr =  new Transform(0, 50, 250, 600, 200, 400);
         
         addMouseListener(new Mouse());
         addMouseMotionListener(new MouseMotion());
@@ -113,26 +157,51 @@ public class FleetMapPanel extends JPanel {
         /* allows access to 2D functionality (casting is apparently safe) */
         Graphics2D g2d = (Graphics2D)g;
         setAntialias(g2d);
-
-        double m = 1.2;
-        int top_w = 20;
-        int bottom_w = 50;
-        int center_x = 300;
-        int top_y = 0;
-        int bottom_y = 200;
+        
+        g2d.setColor(Color.white);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+        g2d.setColor(Color.black);
         
         for (int i = 0; i < grid_columns + 1; i++) {
-            g2d.drawLine((i-grid_columns/2)*top_w + center_x,    top_y,
-                         (i-grid_columns/2)*bottom_w + center_x, bottom_y);
+            Coord a, b;
+            a = tr.transform((double)i / grid_columns, 0);
+            b = tr.transform((double)i / grid_columns, 1);
+            
+            g2d.drawLine((int)Math.round(a.x), (int)Math.round(a.y),
+                         (int)Math.round(b.x), (int)Math.round(b.y));
         }
         
-        double scale = 2;
-        double y = 0;
         for (int i = 0; i < grid_rows + 1; i++) {
-            g2d.drawLine(0, (int)(y*scale), 600, (int)(y*scale));
-            y += Math.pow(m, i);
+            Coord a, b;
+            a = tr.transform(0, (double)i / grid_rows);
+            b = tr.transform(1, (double)i / grid_rows);
             
-            //y = (Math.pow(m, grid_rows+1)) - 1 / (m - 1);
+            g2d.drawLine((int)Math.round(a.x), (int)Math.round(a.y),
+                         (int)Math.round(b.x), (int)Math.round(b.y));
         }
+        
+        int[] xPoly = new int[4];
+        int[] yPoly = new int[4];
+        
+        {
+            int x = 4;
+            int y = 4;
+            double px = (double)x / grid_columns;
+            double py = (double)y / grid_rows;
+            double qx = (double)1 / grid_columns;
+            double qy = (double)1 / grid_rows;
+            
+            Coord[] c = new Coord[4];
+            c[0] = tr.transform(px, py);
+            c[1] = tr.transform(px+qx, py);
+            c[2] = tr.transform(px+qx, py+qy);
+            c[3] = tr.transform(px, py+qy);
+            for (int i = 0; i < 4; i++) {
+                xPoly[i] = (int)Math.round(c[i].x);
+                yPoly[i] = (int)Math.round(c[i].y);
+            }
+        }
+        
+        g2d.fillPolygon(new Polygon(xPoly, yPoly, xPoly.length));
     }
 }

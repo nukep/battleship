@@ -3,6 +3,13 @@ package battleship.gui;
 import javax.swing.*;
 
 public class MainWindow {
+    private final class Something implements MapInterface {
+        @Override
+        public void boxActivate(int x, int y) {
+            System.out.printf("%d x %d\n", x, y);
+        }
+    }
+
     private JFrame frame;
     private JoinCallback joinCallback;
     
@@ -47,13 +54,7 @@ public class MainWindow {
         };
         
         JoinPanel jp = new JoinPanel(joinCallback, frame.getRootPane());
-        FleetMapPanel dp = new FleetMapPanel(new MapInterface() {
-            
-            @Override
-            public void boxActivate(int x, int y) {
-                System.out.printf("%d x %d\n", x, y);
-            }
-        });
+        FleetMapPanel dp = new FleetMapPanel(new Something());
         
         //frame.add(jp);
         frame.add(dp);
