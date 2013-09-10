@@ -9,9 +9,56 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 
 import javax.swing.JPanel;
+
+class PathTransform {
+    private MapTransform tr;
+    private int columns;
+    private int rows;
+    private Path2D.Double path;
+    double translate_x, translate_y;
+
+    public PathTransform(MapTransform tr, int columns, int rows)
+    {
+        this.tr = tr;
+        this.columns = columns;
+        this.rows = rows;
+        this.path = new Path2D.Double();
+        this.translate_x = 0;
+        this.translate_y = 0;
+    }
+    
+    public void translate(double x, double y)
+    {
+        translate_x = x;
+        translate_y = y;
+    }
+    
+    public void moveTo(double x, double y)
+    {
+        Coord c = tr.transform((x + translate_x) / columns,
+                               (y + translate_y) / rows);
+        path.moveTo(c.x, c.y);
+    }
+    
+    public void lineTo(double x, double y)
+    {
+        Coord c = tr.transform((x + translate_x) / columns,
+                               (y + translate_y) / rows);
+        path.lineTo(c.x, c.y);
+    }
+    
+    public void closePath()
+    {
+        path.closePath();
+    }
+    
+    public Path2D.Double getPath()
+    {
+        return path;
+    }
+}
 
 public class FleetMapPanel extends JPanel {
     class Mouse implements MouseListener {
@@ -78,7 +125,8 @@ public class FleetMapPanel extends JPanel {
     public FleetMapPanel(MapInterface gridInterface)
     {
         this.gridInterface = gridInterface;
-        tr =  new MapTransform(150, 450, 0, 600, 200, 400);
+        //tr =  new MapTransform(200, 500, 100, 600, 150, 400);
+        tr = new MapTransform(200, 500, 200, 500, 100, 400);
         
         addMouseListener(new Mouse());
         addMouseMotionListener(new MouseMotion());
@@ -92,16 +140,18 @@ public class FleetMapPanel extends JPanel {
         double qy = (double)1 / grid_rows;
         
         Coord[] c = new Coord[4];
-        c[0] = tr.transform(px, py);
+        c[0] = tr.transform(px,    py);
         c[1] = tr.transform(px+qx, py);
         c[2] = tr.transform(px+qx, py+qy);
-        c[3] = tr.transform(px, py+qy);
+        c[3] = tr.transform(px,    py+qy);
         
         Path2D.Double dp = new Path2D.Double();
         dp.moveTo(c[0].x, c[0].y);
+        
         for (int i = 1; i < 4; i++) {
             dp.lineTo(c[i].x, c[i].y);
         }
+        
         dp.closePath();
     
         g2d.fill(dp);
@@ -129,6 +179,22 @@ public class FleetMapPanel extends JPanel {
             g2d.draw(l);
         }
     }
+    
+    private void drawShip(Graphics2D g2d, int x, int y, int type, boolean isHorizontal)
+    {
+        PathTransform pt = new PathTransform(tr, grid_columns, grid_rows);
+        pt.translate(x,  y);
+        pt.moveTo(0.25, 0.5);
+        pt.lineTo(0.375, 0.375);
+        pt.lineTo(1, 0.25);
+        pt.lineTo(3.75, 0.25);
+        pt.lineTo(3.75, 0.75);
+        pt.lineTo(1, 0.75);
+        pt.lineTo(0.375, 0.625);
+        pt.closePath();
+        
+        g2d.fill(pt.getPath());
+    }
 	
     @Override
     public void paintComponent(Graphics g)
@@ -146,5 +212,12 @@ public class FleetMapPanel extends JPanel {
         
         g2d.setColor(Color.black);
         drawMapSqaure(g2d, mouse_x, mouse_y);
+
+        g2d.setColor(Color.gray);
+        drawShip(g2d, 5, 5, 0, false);
+
+        drawShip(g2d, 0, 9, 0, false);
+        
+        g2d.drawString(String.format("%d x %d", mouse_x, mouse_y), 0, 50);
     }
 }

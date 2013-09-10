@@ -19,6 +19,8 @@ class MapTransform {
     private double top_y, height;
     /* right - left */
     private double top_w, bottom_w;
+    /* orthographic (2D, no perspective) */
+    private boolean ortho;
     
     public MapTransform(double top_l,    double top_r,
                         double bottom_l, double bottom_r,
@@ -34,6 +36,8 @@ class MapTransform {
         
         this.top_y = top_y;
         this.height = bottom_y - top_y;
+        
+        this.ortho = top_w == bottom_w;
     }
     
     /**
@@ -43,7 +47,13 @@ class MapTransform {
     {
         Coord c = new Coord();
         
-        double a = getY(y);
+        double a;
+        
+        if (ortho) {
+            a = y;
+        } else {
+            a = getY(y);
+        }
         double l = lerp(top_l, bottom_l, a);
         double r = lerp(top_r, bottom_r, a);
 
@@ -60,9 +70,15 @@ class MapTransform {
     {
         Coord c = new Coord();
         
-        c.y = getP(y);
+        double a;
         
-        double a = getY(c.y);
+        if (ortho) {
+            c.y = (y - top_y) / height;
+            a = c.y;
+        } else {
+            c.y = getP(y);
+            a = getY(c.y);
+        }
         double l = lerp(top_l, bottom_l, a);
         double r = lerp(top_r, bottom_r, a);
         

@@ -56,6 +56,7 @@ public class MainWindow {
         JoinPanel jp = new JoinPanel(joinCallback, frame.getRootPane());
         FleetMapPanel dp = new FleetMapPanel(new Something());
         
+        //frame.add(new WaitingPanel());
         //frame.add(jp);
         frame.add(dp);
     }
