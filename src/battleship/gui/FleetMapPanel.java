@@ -120,13 +120,16 @@ public class FleetMapPanel extends JPanel {
         /* turns on anti-aliasing (lines appear smoother) */
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
                            RenderingHints.VALUE_ANTIALIAS_ON);
+        /* sub-pixel precision */
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
+                           RenderingHints.VALUE_STROKE_PURE); 
     }
     
     public FleetMapPanel(MapInterface gridInterface)
     {
         this.gridInterface = gridInterface;
-        //tr =  new MapTransform(200, 500, 100, 600, 150, 400);
-        tr = new MapTransform(200, 500, 200, 500, 100, 400);
+        tr =  new MapTransform(200, 500, 100, 600, 150, 400);
+        //tr = new MapTransform(200, 500, 200, 500, 100, 400);
         
         addMouseListener(new Mouse());
         addMouseMotionListener(new MouseMotion());
@@ -184,16 +187,14 @@ public class FleetMapPanel extends JPanel {
     {
         PathTransform pt = new PathTransform(tr, grid_columns, grid_rows);
         pt.translate(x,  y);
-        pt.moveTo(0.25, 0.5);
-        pt.lineTo(0.375, 0.375);
-        pt.lineTo(1, 0.25);
-        pt.lineTo(3.75, 0.25);
-        pt.lineTo(3.75, 0.75);
-        pt.lineTo(1, 0.75);
-        pt.lineTo(0.375, 0.625);
-        pt.closePath();
+        pt.moveTo(0, 0);
+        for (int i = 1; i <= 10; i++) {
+            double d = (double)i / 10;
+            pt.lineTo(d/2, d);
+        }
+        //pt.closePath();
         
-        g2d.fill(pt.getPath());
+        g2d.draw(pt.getPath());
     }
 	
     @Override
