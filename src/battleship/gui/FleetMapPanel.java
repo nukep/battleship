@@ -188,13 +188,11 @@ public class FleetMapPanel extends JPanel {
         PathTransform pt = new PathTransform(tr, grid_columns, grid_rows);
         pt.translate(x,  y);
         pt.moveTo(0, 0);
-        for (int i = 1; i <= 10; i++) {
-            double d = (double)i / 10;
-            pt.lineTo(d/2, d);
-        }
-        //pt.closePath();
+        pt.lineTo(0, 1);
+        pt.lineTo(1, 1);
+        pt.closePath();
         
-        g2d.draw(pt.getPath());
+        g2d.fill(pt.getPath());
     }
 	
     @Override
