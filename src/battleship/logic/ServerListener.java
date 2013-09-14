@@ -9,6 +9,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 class GameConnectionRunnable implements Runnable
 {
@@ -78,13 +79,17 @@ class ServerAcceptRunnable implements Runnable {
     private ServerSocket svr;
     private boolean serverRunning;
     private List<GameConnection> gameConnections;
-    private List<Player> pendingPlayers;
+    /* even though there should only be one pending player at most,
+     * a queue represents the problem better
+     */
+    private Queue<NetworkPlayer> pendingPlayers;
 
     public ServerAcceptRunnable(ServerSocket socket,
                                 List<GameConnection> gameConnections)
     {
         this.svr = socket;
         this.gameConnections = gameConnections;
+        this.pendingPlayers = new LinkedList<>();
         this.serverRunning = true;
     }
     
@@ -98,13 +103,21 @@ class ServerAcceptRunnable implements Runnable {
         serverRunning = false;
     }
     
+    private void pairPlayer(NetworkPlayer p)
+    {
+        if (pendingPlayers.isEmpty()) {
+            pendingPlayers.add(p);
+        } else {
+            NetworkPlayer opponent = pendingPlayers.remove();
+        }
+    }
+    
     private void acceptConnection() throws IOException, SocketTimeoutException
     {
         Socket socket = svr.accept();
         
-        GameConnection g = new GameConnection(socket);
-        
-        g.start();
+        MessageLayer ml = new MessageLayer(socket.getInputStream(),
+                                           socket.getOutputStream());
     }
     
     @Override
