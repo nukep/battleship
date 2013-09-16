@@ -26,10 +26,16 @@ public class WaitingPanel extends JPanel {
     @Override
     public void paintComponent(Graphics g)
     {
+        int circle_width = 5;
+        int circle_offset = 20;
+        int center_x = 50;
+        int center_y = 50;
+        
         g.setColor(Color.white);
         g.fillRect(0, 0, getWidth(), getHeight());
         
         g.setColor(new Color(255,0,0));
-        g.drawRect(x,0, 10, 10);
+        
+        g.drawOval(0, 0, 10, 10);
     }
 }

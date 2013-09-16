@@ -1,0 +1,21 @@
+Client connects
+
+Send: UTF(yourName)
+Send/Recv: Messages
+
+
+Message types (S: send to server, R: receive from server):
+SR: Chat
+ R: Opponent paired
+ R: Opponent disconnected
+
+    Game messages
+  S : Fleet configuration
+   R: First turn (yours or opponent's?)
+  S : Strike opponent's square
+   R: Hit/miss/ship-down (your strike)
+   R: Strike location (opponent's strike)
+   R: Game ended (winner is deduced by clients)
+  S : Play again?
+
+
