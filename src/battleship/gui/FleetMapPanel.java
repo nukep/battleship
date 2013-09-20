@@ -135,18 +135,18 @@ public class FleetMapPanel extends JPanel {
         addMouseMotionListener(new MouseMotion());
     }
     
-    private void drawMapSqaure(Graphics2D g2d, int x, int y)
+    private void drawMapSqaure(Graphics2D g2d, int x, int y, double inset)
     {
-        double px = (double)x / grid_columns;
-        double py = (double)y / grid_rows;
-        double qx = (double)1 / grid_columns;
-        double qy = (double)1 / grid_rows;
+        double px = (x+inset) / grid_columns;
+        double py = (y+inset) / grid_rows;
+        double qx = (x+1-inset) / grid_columns;
+        double qy = (y+1-inset) / grid_rows;
         
         Coord[] c = new Coord[4];
-        c[0] = tr.transform(px,    py);
-        c[1] = tr.transform(px+qx, py);
-        c[2] = tr.transform(px+qx, py+qy);
-        c[3] = tr.transform(px,    py+qy);
+        c[0] = tr.transform(px, py);
+        c[1] = tr.transform(qx, py);
+        c[2] = tr.transform(qx, qy);
+        c[3] = tr.transform(px, qy);
         
         Path2D.Double dp = new Path2D.Double();
         dp.moveTo(c[0].x, c[0].y);
@@ -194,6 +194,11 @@ public class FleetMapPanel extends JPanel {
         
         g2d.fill(pt.getPath());
     }
+    
+    private String coordToText(int x, int y)
+    {
+        return String.format("%c%d", (char)('A'+y), x+1);
+    }
 	
     @Override
     public void paintComponent(Graphics g)
@@ -205,18 +210,15 @@ public class FleetMapPanel extends JPanel {
         g2d.setColor(Color.white);
         g2d.fillRect(0, 0, getWidth(), getHeight());
         
-        g2d.setColor(new Color(255,0,0));
+        g2d.setColor(new Color(0, 0, 0, 32));
+        drawMapSqaure(g2d, mouse_x, mouse_y, 0.0);
+        
+        g2d.setColor(new Color(64, 64, 64));
         
         drawMapGrid(g2d);
-        
-        g2d.setColor(Color.black);
-        drawMapSqaure(g2d, mouse_x, mouse_y);
 
         g2d.setColor(Color.gray);
-        drawShip(g2d, 5, 5, 0, false);
-
-        drawShip(g2d, 0, 9, 0, false);
         
-        g2d.drawString(String.format("%d x %d", mouse_x, mouse_y), 0, 50);
+        g2d.drawString(coordToText(mouse_x, mouse_y), 0, 50);
     }
 }
