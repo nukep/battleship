@@ -27,7 +27,7 @@ class M2C implements MessageToClient {
     }
 }
 
-public class Main {
+public class ClientCLIDriver {
     private static Socket askHost(Scanner k)
     {
         String host;
@@ -48,7 +48,7 @@ public class Main {
     
     public static void main(String[] args)
     {
-        M2C m2c = new M2C();
+        MessageToClient m2c = new M2C();
         Scanner k = new Scanner(System.in);
         Socket socket;
         NetClient client;
