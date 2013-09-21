@@ -2,36 +2,50 @@ package battleship.client;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Date;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import battleship.logic.MessageToClient;
 import battleship.logic.MessageToServer;
+import battleship.netmessages.NetServerChat;
+import battleship.netmessages.MessageNetClient;
+import battleship.netmessages.MessageNetServer;
+import battleship.netmessages.NetServerStrike;
+
+interface OutputMessage {
+    public void write(ObjectOutputStream oos) throws IOException;
+}
 
 class InputRunnable implements Runnable {
-    private InputStream is;
+    private Socket socket;
     private MessageToClient m2c;
 
-    public InputRunnable(InputStream is, MessageToClient m2c) {
-        this.is = is;
+    public InputRunnable(Socket socket, MessageToClient m2c)
+    {
+        this.socket = socket;
         this.m2c = m2c;
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         try {
-            ObjectInputStream ois = new ObjectInputStream(is);
+            ObjectInputStream ois;
+            ois = new ObjectInputStream(socket.getInputStream());
             
             while (true) {
-                String message;
-                Date date;
-                message = ois.readUTF();
-                date = (Date)ois.readObject();
+                MessageNetClient message = (MessageNetClient)ois.readObject();
                 
-                m2c.chat(message, date);
+                if (!(message instanceof MessageNetClient)) {
+                    // object is not the type we were expecting
+                    throw new IOException("Message is not a NetClientMessage");
+                }
+
+                message.toClient(m2c);
             }
         } catch (ClassNotFoundException e) {
         } catch (EOFException|SocketException e) {
@@ -41,53 +55,97 @@ class InputRunnable implements Runnable {
         }
         
         System.out.println("Input thread ended");
+        
+        try {
+            socket.close();
+        } catch (IOException e) {}
+    }
+}
+
+class OutputRunnable implements Runnable {
+    private Socket socket;
+    private BlockingQueue<MessageNetServer> queue;
+    
+    public OutputRunnable(Socket socket, BlockingQueue<MessageNetServer> queue)
+    {
+        this.socket = socket;
+        this.queue = queue;
+    }
+    @Override
+    public void run()
+    {
+        try {
+            ObjectOutputStream oos;
+            oos = new ObjectOutputStream(socket.getOutputStream());
+            
+            while (true) {
+                MessageNetServer message = queue.take();
+                
+                oos.writeObject(message);
+                oos.flush();
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            // client is trying to shut down
+        }
     }
 }
 
 public class NetClient implements MessageToServer {
     private Socket socket;
     private MessageToClient m2c;
-    private Thread inputThread;
+    private Thread inputThread, outputThread;
     
-    public NetClient(Socket socket, MessageToClient m2c)
+    private String name;
+    private BlockingQueue<MessageNetServer> outputQueue;
+    
+    public NetClient(Socket socket, MessageToClient m2c, String name)
     {
         this.socket = socket;
         this.m2c = m2c;
+        this.name = name;
     }
     
     public void start()
     {
-        try {
-            inputThread = new Thread(new InputRunnable(socket.getInputStream(), m2c));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        outputQueue = new LinkedBlockingQueue<>();
+        
+        inputThread = new Thread(new InputRunnable(socket, m2c));
+        outputThread = new Thread(new OutputRunnable(socket, outputQueue));
         
         inputThread.start();
-        
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {}
-
-        // unblocks any blocking calls in inputThread
+        outputThread.start();
+    }
+    
+    public void stop()
+    {
+        // unblocks any blocking calls in inputThread and outputThread
         inputThread.interrupt();
+        outputThread.interrupt();
         
         // end the streams, also unblocking IO reads in inputThread
         try {
             socket.shutdownInput();
             socket.shutdownOutput();
-        } catch (IOException e) {}  // close quietly
+        } catch (IOException e) {}  // shutdown quietly
+    }
+    
+    private void enqueueServerMessage(MessageNetServer msg)
+    {
+        outputQueue.add(msg);
     }
 
     @Override
-    public void chat(String message) {
-        
+    public void chat(final String message)
+    {
+        enqueueServerMessage(new NetServerChat(message));
     }
 
     @Override
-    public void strikeSquare(int x, int y) {
-        // TODO Auto-generated method stub
-        
+    public void strikeSquare(int x, int y)
+    {
+        enqueueServerMessage(new NetServerStrike(x, y));
     }
 }

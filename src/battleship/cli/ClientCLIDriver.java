@@ -10,6 +10,12 @@ import battleship.logic.MessageToClient;
 
 class M2C implements MessageToClient {
     @Override
+    public void opponentJoin(String name, boolean yourTurnFirst) {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    @Override
     public void chat(String message, Date date) {
         System.out.println("Chat: " + date + " : " + message);
     }
@@ -21,7 +27,13 @@ class M2C implements MessageToClient {
     }
 
     @Override
-    public void opponentShipSunk() {
+    public void opponentStrike(int x, int y) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void gameComplete(boolean youWin) {
         // TODO Auto-generated method stub
         
     }
@@ -59,7 +71,8 @@ public class ClientCLIDriver {
         System.out.print("Your name: ");
         name = k.nextLine();
         */
-        client = new NetClient(socket, m2c);
+        name = "Derp";
+        client = new NetClient(socket, m2c, name);
         client.start();
     }
 }

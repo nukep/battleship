@@ -10,12 +10,18 @@ import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import battleship.logic.MessageToServer;
+import battleship.netmessages.NetClientChat;
+import battleship.netmessages.MessageNetServer;
+
 class InputRunnable implements Runnable {    
     private Socket socket;
+    private MessageToServer m2s;
 
-    public InputRunnable(Socket socket)
+    public InputRunnable(Socket socket, MessageToServer m2s)
     {
         this.socket = socket;
+        this.m2s = m2s;
     }
 
     @Override
@@ -24,12 +30,31 @@ class InputRunnable implements Runnable {
         try {
             ObjectInputStream ois;
             ois = new ObjectInputStream(socket.getInputStream());
+            
+            while (true) {
+                MessageNetServer message = (MessageNetServer)ois.readObject();
+                
+                if (!(message instanceof MessageNetServer)) {
+                    // object is not the type we were expecting
+                    throw new IOException("Message is not a NetServerMessage");
+                }
+                
+                message.toServer(m2s);
+            }
         } catch (EOFException e) {
             // connection has ended
         } catch (IOException e) {
+            System.err.println("Server IO error (" + socket.getInetAddress() + "): " + e);
+        } catch (ClassNotFoundException e) {
+            // this is a bad thing to happen
+            e.printStackTrace();
         }
         
         System.out.println("Client disconnected");
+        
+        try {
+            socket.close();
+        } catch (IOException e) {}
     }
 }
 
@@ -48,52 +73,13 @@ class OutputRunnable implements Runnable {
             ObjectOutputStream oos;
             oos = new ObjectOutputStream(socket.getOutputStream());
             
-            oos.writeUTF("Hello!");
-            oos.writeObject(new java.util.Date());
+            oos.writeObject(new NetClientChat("Hello!"));
+            oos.flush();
         } catch (EOFException e) {
             // connection has ended
         } catch (IOException e) {
+        //} catch (InterruptedException e) {
         }
-    }
-}
-
-class NetConnection {
-    private Socket socket;
-    private Thread inThread, outThread;
-
-    public NetConnection(Socket socket)
-    {
-        this.socket = socket;
-    }
-    
-    public void start()
-    {
-        inThread = new Thread(new InputRunnable(socket));
-        outThread = new Thread(new OutputRunnable(socket));
-        
-        inThread.start();
-        outThread.start();
-    }
-    
-    public void stop()
-    {
-        // unblock any IO read/write methods
-        try {
-            socket.shutdownInput();
-            socket.shutdownOutput();
-            socket.close();
-        } catch (IOException e) {}  // silently close
-        
-        // unblock any thread-blocking methods (e.g. wait, sleep, join)
-        inThread.interrupt();
-        outThread.interrupt();
-    }
-    
-    public void stopAndWait() throws InterruptedException
-    {
-        stop();
-        inThread.join();
-        outThread.join();
     }
 }
 
@@ -109,7 +95,6 @@ public class NetServer implements Runnable {
     public void run()
     {
         boolean running = true;
-        
         
         Queue<NetConnection> players = new LinkedList<>();
         
