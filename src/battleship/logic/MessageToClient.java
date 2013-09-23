@@ -4,14 +4,22 @@ import java.util.Date;
 
 public interface MessageToClient {
     /**
-     * You are now paired with an opponent. The game can start.
+     * You are now paired with an opponent.
      * 
      * @param name Name of your adversary
-     * @param yourTurnFirst True if you go first, false if opponent goes first
      */
-    public void opponentJoin(String name, boolean yourTurnFirst);
+    public void opponentJoin(String name);
     /**
-     * Client receives a chat message
+     * It is now someone's turn.
+     * This is also called for the first time when both the players' fleets are
+     * configured.
+     * 
+     * @param yourTurn True if it's your turn, false if it's the opponent's turn
+     */
+    public void turn(boolean yourTurn);
+    /**
+     * Client receives a chat message.
+     * Note: The client always receives their own messages.
      * 
      * @param message The whole message, typically including the player name
      *                or server status
@@ -25,7 +33,7 @@ public interface MessageToClient {
      */
     public void hitMiss(boolean hit);
     /**
-     * The opponent made a strike. It's now your turn.
+     * The opponent made a strike.
      * 
      * @param x
      * @param y

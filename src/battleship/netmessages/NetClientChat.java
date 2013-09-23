@@ -10,10 +10,10 @@ public class NetClientChat implements MessageNetClient {
     private String message;
     private Date date;
     
-    public NetClientChat(String message)
+    public NetClientChat(String message, Date date)
     {
         this.message = message;
-        this.date = new Date();
+        this.date = date;
     }
 
     @Override

@@ -14,10 +14,68 @@ import battleship.logic.MessageToServer;
 import battleship.netmessages.NetServerChat;
 import battleship.netmessages.MessageNetClient;
 import battleship.netmessages.MessageNetServer;
+import battleship.netmessages.NetServerConnect;
 import battleship.netmessages.NetServerStrike;
 
-interface OutputMessage {
-    public void write(ObjectOutputStream oos) throws IOException;
+public class NetClient implements MessageToServer {
+    private Socket socket;
+    private MessageToClient m2c;
+    private Thread inputThread, outputThread;
+    
+    private BlockingQueue<MessageNetServer> outputQueue;
+    
+    public NetClient(Socket socket, MessageToClient m2c)
+    {
+        this.socket = socket;
+        this.m2c = m2c;
+    }
+    
+    public void start()
+    {
+        outputQueue = new LinkedBlockingQueue<>();
+        
+        inputThread = new Thread(new InputRunnable(socket, m2c));
+        outputThread = new Thread(new OutputRunnable(socket, outputQueue));
+        
+        inputThread.start();
+        outputThread.start();
+    }
+    
+    public void stop()
+    {
+        // unblocks any blocking calls in inputThread and outputThread
+        inputThread.interrupt();
+        outputThread.interrupt();
+        
+        // end the streams, also unblocking IO reads in inputThread
+        try {
+            socket.shutdownInput();
+            socket.shutdownOutput();
+        } catch (IOException e) {}  // shutdown quietly
+    }
+
+    @Override
+    public void connect(String name)
+    {
+        enqueueServerMessage(new NetServerConnect(name));
+    }
+    
+    @Override
+    public void chat(final String message)
+    {
+        enqueueServerMessage(new NetServerChat(message));
+    }
+
+    @Override
+    public void strikeSquare(int x, int y)
+    {
+        enqueueServerMessage(new NetServerStrike(x, y));
+    }
+
+    private void enqueueServerMessage(MessageNetServer msg)
+    {
+        outputQueue.add(msg);
+    }
 }
 
 class InputRunnable implements Runnable {
@@ -51,7 +109,7 @@ class InputRunnable implements Runnable {
         } catch (EOFException|SocketException e) {
             // client or server closed the connection
         } catch (IOException e) {
-            System.err.println("Client IO error: " + e);
+            System.err.println("Client IO error (read): " + e);
         }
         
         System.out.println("Input thread ended");
@@ -71,6 +129,7 @@ class OutputRunnable implements Runnable {
         this.socket = socket;
         this.queue = queue;
     }
+    
     @Override
     public void run()
     {
@@ -85,67 +144,9 @@ class OutputRunnable implements Runnable {
                 oos.flush();
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            System.err.println("Client IO error (write): " + e);
         } catch (InterruptedException e) {
             // client is trying to shut down
         }
-    }
-}
-
-public class NetClient implements MessageToServer {
-    private Socket socket;
-    private MessageToClient m2c;
-    private Thread inputThread, outputThread;
-    
-    private String name;
-    private BlockingQueue<MessageNetServer> outputQueue;
-    
-    public NetClient(Socket socket, MessageToClient m2c, String name)
-    {
-        this.socket = socket;
-        this.m2c = m2c;
-        this.name = name;
-    }
-    
-    public void start()
-    {
-        outputQueue = new LinkedBlockingQueue<>();
-        
-        inputThread = new Thread(new InputRunnable(socket, m2c));
-        outputThread = new Thread(new OutputRunnable(socket, outputQueue));
-        
-        inputThread.start();
-        outputThread.start();
-    }
-    
-    public void stop()
-    {
-        // unblocks any blocking calls in inputThread and outputThread
-        inputThread.interrupt();
-        outputThread.interrupt();
-        
-        // end the streams, also unblocking IO reads in inputThread
-        try {
-            socket.shutdownInput();
-            socket.shutdownOutput();
-        } catch (IOException e) {}  // shutdown quietly
-    }
-    
-    private void enqueueServerMessage(MessageNetServer msg)
-    {
-        outputQueue.add(msg);
-    }
-
-    @Override
-    public void chat(final String message)
-    {
-        enqueueServerMessage(new NetServerChat(message));
-    }
-
-    @Override
-    public void strikeSquare(int x, int y)
-    {
-        enqueueServerMessage(new NetServerStrike(x, y));
     }
 }

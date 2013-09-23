@@ -2,6 +2,12 @@ package battleship.logic;
 
 public interface MessageToServer {
     /**
+     * The first message, confirming connection.
+     * 
+     * @param name Player name
+     */
+    public void connect(String name);
+    /**
      * Send a chat message
      * 
      * @param message
@@ -14,4 +20,8 @@ public interface MessageToServer {
      * @param y
      */
     public void strikeSquare(int x, int y);
+    /**
+     * Send the server your fleet configuration.
+     */
+    //public void submitFleet();
 }
