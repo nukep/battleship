@@ -14,6 +14,6 @@ public class NetServerConnect implements MessageNetServer {
     
     @Override
     public void toServer(MessageToServer s) {
-        s.connect(name);
+        // TODO
     }
 }

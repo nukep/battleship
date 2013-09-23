@@ -8,18 +8,25 @@ import battleship.logic.MessageToServer;
 public class Game {
     private MessageToClient p1;
     private MessageToClient p2;
+    
+    private PlayerInput pi1, pi2;
 
-    public Game(MessageToClient p1, MessageToClient p2,
-                AssignMessageToServer mp1, AssignMessageToServer mp2)
+    public Game(MessageToClient p1, MessageToClient p2)
     {
         this.p1 = p1;
         this.p2 = p2;
         
-        mp1.assignMessageToServer(new PlayerInput(p1, p2));
-        mp2.assignMessageToServer(new PlayerInput(p2, p1));
-        
-        p1.opponentJoin("P2");
-        p2.opponentJoin("P1");
+        pi1 = new PlayerInput(p1, p2);
+        pi2 = new PlayerInput(p2, p1);
+    }
+    
+    public MessageToServer getMessageToServer(int playerNumber)
+    {
+        if (playerNumber == 0) {
+            return pi1;
+        } else {
+            return pi2;
+        }
     }
 }
 

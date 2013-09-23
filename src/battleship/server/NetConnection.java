@@ -22,17 +22,19 @@ class NetConnection implements MessageToClient {
     private Thread inThread, outThread;
     private InputRunnable inputRunnable;
     private BlockingQueue<MessageNetClient> outputQueue;
+    private NetMatchHandle matchHandle;
 
-    public NetConnection(Socket socket)
+    public NetConnection(Socket socket, NetMatchmaker matchmaker)
     {
         this.socket = socket;
+        this.matchHandle = new NetMatchHandle(matchmaker, this);
     }
     
     public void start()
     {
         outputQueue = new LinkedBlockingQueue<>();
 
-        inputRunnable = new InputRunnable(socket);
+        inputRunnable = new InputRunnable(socket, matchHandle);
         inThread = new Thread(inputRunnable);
         outThread = new Thread(new OutputRunnable(socket, outputQueue));
         
@@ -58,11 +60,6 @@ class NetConnection implements MessageToClient {
         stop();
         inThread.join();
         outThread.join();
-    }
-    
-    public AssignMessageToServer getAssignMessageToServer()
-    {
-        return inputRunnable;
     }
 
     @Override
@@ -105,20 +102,36 @@ class NetConnection implements MessageToClient {
     }
 }
 
-class InputRunnable implements Runnable, AssignMessageToServer {    
-    private Socket socket;
-    private MessageToServer m2s;
-
-    public InputRunnable(Socket socket)
+class NetMatchHandle {
+    private NetMatchmaker matchmaker;
+    private NetConnection conn;
+    
+    public NetMatchHandle(NetMatchmaker matchmaker,
+                                         NetConnection conn)
     {
-        this.socket = socket;
-        this.m2s = null;
+        this.matchmaker = matchmaker;
+        this.conn = conn;
+    }
+
+    public NetGamePlayerHandle connect() throws InterruptedException
+    {
+        return matchmaker.connect(conn);
     }
     
-    @Override
-    public synchronized void assignMessageToServer(MessageToServer m2s)
+    public void disconnect()
     {
-        this.m2s = m2s;
+        matchmaker.disconnect(conn);
+    }
+}
+
+class InputRunnable implements Runnable {    
+    private Socket socket;
+    private NetMatchHandle matchHandle;
+
+    public InputRunnable(Socket socket, NetMatchHandle matchHandle)
+    {
+        this.socket = socket;
+        this.matchHandle = matchHandle;
     }
 
     @Override
@@ -135,6 +148,14 @@ class InputRunnable implements Runnable, AssignMessageToServer {
                 throw new IOException("Message is not NetServerConnect");
             }
             
+            NetGamePlayerHandle playerHandle;
+            
+            // register connection with the server (matches players)
+            // wait for a match
+            playerHandle = matchHandle.connect();
+            
+            playerHandle.messageToServer(connectMessage);
+            
             while (true) {
                 MessageNetServer message;
                 message = (MessageNetServer)ois.readObject();
@@ -143,14 +164,8 @@ class InputRunnable implements Runnable, AssignMessageToServer {
                     // object is not the type we were expecting
                     throw new IOException("Message is not a NetServerMessage");
                 }
-                
-                synchronized (this) {
-                    if (m2s == null) {
-                        System.err.println("Server IO error: Client sent message prematurely");
-                    } else {
-                        message.toServer(m2s);
-                    }
-                }
+
+                playerHandle.messageToServer(message);
             }
         } catch (EOFException e) {
             // connection has ended
@@ -159,6 +174,9 @@ class InputRunnable implements Runnable, AssignMessageToServer {
         } catch (ClassNotFoundException e) {
             // this is a bad thing to happen
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            // interrupted while matchmaking
         }
         
         System.out.println("Client disconnected");

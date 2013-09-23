@@ -4,15 +4,15 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class NetServer implements Runnable {
     private ServerSocket server_socket;
+    private NetMatchmaker matchMaker;
 
     public NetServer(int port) throws IOException
     {
         server_socket = new ServerSocket(port);
+        matchMaker = new NetMatchmaker();
     }
 
     @Override
@@ -20,34 +20,18 @@ public class NetServer implements Runnable {
     {
         boolean running = true;
         
-        Queue<NetConnection> players = new LinkedList<>();
-        
         while (running) {
             try {
                 Socket s = server_socket.accept();
                 
-                NetConnection c = new NetConnection(s);
-                players.add(c);
+                NetConnection c = new NetConnection(s, matchMaker);
                 c.start();
-                
-                while (players.size() >= 2) {
-                    NetConnection p1, p2;
-                    p1 = players.poll();
-                    p2 = players.poll();
-                    
-                    new NetGame(p1, p2);
-                }
             } catch (SocketException e) {
                 // server is trying to stop
                 running = false;
             } catch (IOException e) {
                 System.err.println("Server IO error: " + e);
             }
-        }
-        
-        // close all connections
-        for (NetConnection p: players) {
-            p.stop();
         }
     }
     
