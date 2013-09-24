@@ -35,6 +35,8 @@ public class JoinPanel extends JPanel {
         }
     }
     
+    private WaitingPanel wp;
+    
     public JoinPanel(final JoinCallback joinCallback, JRootPane rootPane)
     {
         JTextField playerNameField = new JTextField();
@@ -78,6 +80,16 @@ public class JoinPanel extends JPanel {
         c.gridx = 2;
         add(joinButton, c);
         
+        c.gridx = 0;
+        c.weightx = 0;
+        c.gridy++;
+        wp = new WaitingPanel();
+        add(wp, c);
+        
         rootPane.setDefaultButton(joinButton);
     }
+}
+
+interface JoinCallback {
+    public void join(String playerName, String address);
 }

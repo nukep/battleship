@@ -15,33 +15,24 @@ public class MainWindow {
     
     public static void applySwingLookAndFeel()
     {
-        try
-        {
+        try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }
-        catch (UnsupportedLookAndFeelException e)
-        {
+        } catch (UnsupportedLookAndFeelException e) {
         }
         // If there are (non-critical) exceptions, we want to know what they are
-        // Even though printStackTrace is EVIL, we really don't care
         
-        catch (ClassNotFoundException e)
-        {
+        catch (ClassNotFoundException e) {
             e.printStackTrace();
-        }
-        catch (InstantiationException e)
-        {
+        } catch (InstantiationException e) {
             e.printStackTrace();
-        }
-        catch (IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
     }
     
     public MainWindow()
     {
-        frame = new JFrame();
+        frame = new JFrame("Battleship");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(640, 480);
         
@@ -56,9 +47,8 @@ public class MainWindow {
         JoinPanel jp = new JoinPanel(joinCallback, frame.getRootPane());
         FleetMapPanel dp = new FleetMapPanel(new Something());
         
-        //frame.add(new WaitingPanel());
-        //frame.add(jp);
-        frame.add(dp);
+        frame.add(jp);
+        //frame.add(dp);
     }
     
     public void show()

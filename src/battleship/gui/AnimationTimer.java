@@ -3,7 +3,10 @@ package battleship.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JComponent;
 import javax.swing.Timer;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 /**
  * The AnimationTimer class provides a timer with a consistent frame rate.
@@ -15,7 +18,7 @@ public class AnimationTimer {
     
     private Timer timer;
     
-    public AnimationTimer(final AnimationTimerCallback cb)
+    public AnimationTimer(JComponent component, final AnimationTimerCallback cb)
     {
         int delay = 1000 / FPS;
         timer = new Timer(delay, new ActionListener() {
@@ -47,15 +50,31 @@ public class AnimationTimer {
                 prev_ms = cur_ms;
             }
         });
+        
+        /* start and stop the timer when the component is shown or hidden */
+        
+        component.addAncestorListener(new AncestorListener() {
+            @Override
+            public void ancestorAdded(AncestorEvent arg0) {
+                /* shown / added */
+                
+                timer.start();
+            }
+
+            @Override
+            public void ancestorRemoved(AncestorEvent arg0) {
+                /* hidden / removed */
+                
+                timer.stop();
+            }
+            
+            @Override
+            public void ancestorMoved(AncestorEvent arg0) {
+            }
+        });
     }
-    
-    public void start()
-    {
-        timer.start();
-    }
-    
-    public void stop()
-    {
-        timer.stop();
-    }
+}
+
+interface AnimationTimerCallback {
+    public void trigger(double delta_seconds);
 }

@@ -115,16 +115,6 @@ public class FleetMapPanel extends JPanel {
     private int grid_rows = 10;
     private int mouse_x, mouse_y;
     
-    private static void setAntialias(Graphics2D g)
-    {
-        /* turns on anti-aliasing (lines appear smoother) */
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-                           RenderingHints.VALUE_ANTIALIAS_ON);
-        /* sub-pixel precision */
-        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL,
-                           RenderingHints.VALUE_STROKE_PURE); 
-    }
-    
     public FleetMapPanel(MapInterface gridInterface)
     {
         this.gridInterface = gridInterface;
@@ -203,22 +193,23 @@ public class FleetMapPanel extends JPanel {
     @Override
     public void paintComponent(Graphics g)
     {
-        /* allows access to 2D functionality (casting is apparently safe) */
-        Graphics2D g2d = (Graphics2D)g;
-        setAntialias(g2d);
+        Graphics2D g2d = DrawUtils.getGraphics2D(g);
         
         g2d.setColor(Color.white);
         g2d.fillRect(0, 0, getWidth(), getHeight());
         
-        g2d.setColor(new Color(0, 0, 0, 32));
-        drawMapSqaure(g2d, mouse_x, mouse_y, 0.0);
+        if (mouse_x >= 0 && mouse_x < grid_columns
+                && mouse_y >= 0 && mouse_y < grid_rows)
+        {
+            g2d.setColor(new Color(0, 0, 0, 32));
+            drawMapSqaure(g2d, mouse_x, mouse_y, 0.0);
+
+            g2d.setColor(Color.gray);
+            g2d.drawString(coordToText(mouse_x, mouse_y), 0, 50);
+        }
         
         g2d.setColor(new Color(64, 64, 64));
         
         drawMapGrid(g2d);
-
-        g2d.setColor(Color.gray);
-        
-        g2d.drawString(coordToText(mouse_x, mouse_y), 0, 50);
     }
 }
