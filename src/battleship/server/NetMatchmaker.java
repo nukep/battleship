@@ -1,22 +1,21 @@
 package battleship.server;
 
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.TreeMap;
+
+import battleship.logic.Player;
 
 class NetMatchmaker {
     private LinkedList<NetGame> activeGames;
     private NetGame waitingGame;
-    private Map<NetConnection, NetGame> connectionGameMap;
     
     public NetMatchmaker()
     {
         activeGames = new LinkedList<>();
-        connectionGameMap = new TreeMap<>();
         waitingGame = null;
     }
     
-    public synchronized NetGamePlayerHandle connect(NetConnection conn)
+    public synchronized NetGamePlayerHandle connect(NetConnection conn,
+            Player player)
             throws InterruptedException
     {
         NetGame game = null;
@@ -26,7 +25,7 @@ class NetMatchmaker {
         
         if (firstPlayer) {
             // create a new game
-            game = new NetGame(conn);
+            game = new NetGame(conn, player);
             // start its thread
             new Thread(game).start();
             waitingGame = game;
@@ -36,25 +35,22 @@ class NetMatchmaker {
             waitingGame = null;
 
             activeGames.add(game);
-            game.addSecondConnection(conn);
-            
-            this.notifyAll();
+            game.addSecondConnection(conn, player);
         }
-        
-        connectionGameMap.put(conn, game);
         
         if (firstPlayer) {
             // block the thread until the other player joins
             this.wait();
             return game.getPlayerHandle(0);
         } else {
+            // unblock the firstPlayer thread
+            this.notifyAll();
             return game.getPlayerHandle(1);
         }
     }
     
     public synchronized void disconnect(NetConnection conn)
     {
-        NetGame game = connectionGameMap.get(conn);
         // TODO
         
         // give the remaining player an option to play another game

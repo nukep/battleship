@@ -3,20 +3,26 @@ package battleship.server;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import battleship.logic.Game;
 import battleship.logic.MessageToServer;
+import battleship.logic.Player;
 import battleship.netmessages.MessageNetServer;
 
 class NetGame implements Runnable {
     private Object secondConnectionCondition;
     private NetConnection conn1, conn2;
+    private Player player1, player2;
     
     private BlockingQueue<NetGameMessage> serverQueue;
     private Game game;
     
-    public NetGame(NetConnection conn1)
+    public NetGame(NetConnection conn1, Player player1)
     {
         this.conn1 = conn1;
         this.conn2 = null;
+        this.player1 = player1;
+        this.player2 = null;
+        
         secondConnectionCondition = new Object();
         this.serverQueue = new LinkedBlockingQueue<>();
         this.game = null;
@@ -46,11 +52,12 @@ class NetGame implements Runnable {
         }
     }
     
-    public void addSecondConnection(NetConnection connection)
+    public void addSecondConnection(NetConnection connection, Player player)
     {
         synchronized (secondConnectionCondition) {
             conn2 = connection;
-            this.game = new Game(conn1, conn2);
+            player2 = player;
+            this.game = new Game(conn1, conn2, player1, player2);
             secondConnectionCondition.notify();
         }
     }

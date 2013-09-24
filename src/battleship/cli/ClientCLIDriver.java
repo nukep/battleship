@@ -7,11 +7,20 @@ import java.util.Scanner;
 
 import battleship.client.NetClient;
 import battleship.logic.MessageToClient;
+import battleship.logic.Player;
 
 class M2C implements MessageToClient {
+    private String opponentName;
+    
     @Override
     public void opponentJoin(String name) {
-        System.out.println(name + " joined!");
+        this.opponentName = name;
+        System.out.println(opponentName + " joined!");
+    }
+
+    @Override
+    public void opponentLeave() {
+        System.out.println(opponentName + " left!");
     }
 
     @Override
@@ -72,11 +81,10 @@ public class ClientCLIDriver {
         String name;
         
         socket = askHost(k);
-        /*
+        
         System.out.print("Your name: ");
         name = k.nextLine();
-        */
-        name = "Derp";
+        
         client = new NetClient(socket, m2c);
         client.start();
         

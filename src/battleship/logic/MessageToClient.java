@@ -9,6 +9,7 @@ public interface MessageToClient {
      * @param name Name of your adversary
      */
     public void opponentJoin(String name);
+    public void opponentLeave();
     /**
      * It is now someone's turn.
      * This is also called for the first time when both the players' fleets are

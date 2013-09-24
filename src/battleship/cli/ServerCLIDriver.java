@@ -12,6 +12,8 @@ public class ServerCLIDriver {
             
             System.out.println("Server is started");
             
+            new Thread(new ServerCLICommandLine(server)).start();
+            
             server.run();
             
             System.out.println("Server is stopped");

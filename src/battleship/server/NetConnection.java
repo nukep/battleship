@@ -11,6 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import battleship.logic.MessageToClient;
 import battleship.logic.MessageToServer;
+import battleship.logic.Player;
 import battleship.netmessages.MessageNetClient;
 import battleship.netmessages.MessageNetServer;
 import battleship.netmessages.NetClientChat;
@@ -68,6 +69,12 @@ class NetConnection implements MessageToClient {
     }
 
     @Override
+    public void opponentLeave() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
     public void turn(boolean yourTurn) {
         // TODO Auto-generated method stub
         
@@ -106,16 +113,16 @@ class NetMatchHandle {
     private NetMatchmaker matchmaker;
     private NetConnection conn;
     
-    public NetMatchHandle(NetMatchmaker matchmaker,
-                                         NetConnection conn)
+    public NetMatchHandle(NetMatchmaker matchmaker, NetConnection conn)
     {
         this.matchmaker = matchmaker;
         this.conn = conn;
     }
 
-    public NetGamePlayerHandle connect() throws InterruptedException
+    public NetGamePlayerHandle connect(Player player)
+            throws InterruptedException
     {
-        return matchmaker.connect(conn);
+        return matchmaker.connect(conn, player);
     }
     
     public void disconnect()
@@ -152,7 +159,7 @@ class InputRunnable implements Runnable {
             
             // register connection with the server (matches players)
             // wait for a match
-            playerHandle = matchHandle.connect();
+            playerHandle = matchHandle.connect(connectMessage.toPlayer());
             
             playerHandle.messageToServer(connectMessage);
             
