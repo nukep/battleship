@@ -1,54 +1,49 @@
 package battleship.gui;
 
+import java.awt.CardLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.*;
 
-import battleship.client.NetClient;
-
 public class MainWindow {
-    private final class JoinConnectBusy implements BusyInterface {
+    private final class JoinConnect implements ConnectInterface {
         private final BusyInterface busy;
-        private Connect c;
 
-        private JoinConnectBusy(BusyInterface busy) {
+        private JoinConnect(BusyInterface busy) {
             this.busy = busy;
         }
 
         @Override
-        public void busy() {
-            busy.busy();
+        public void connect(Connect c)
+        {
+            busy.unbusy();
+            
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    switchToGameplay();
+                }
+            });
         }
 
         @Override
-        public void unbusy() {
-            NetClient client = c.getNetClient();
-            
-            if (client == null) {
-                JOptionPane.showMessageDialog(null, c.getException());
-            } else {
-                // connection successful
-            }
+        public void error(Exception e)
+        {
+            JOptionPane.showMessageDialog(null, e);
             busy.unbusy();
         }
-        
-        public void setConnect(Connect c)
-        {
-            this.c = c;
-        }
     }
-
-    private final class Something implements MapInterface {
-        @Override
-        public void boxActivate(int x, int y) {
-            System.out.printf("%d x %d\n", x, y);
-        }
-    }
+    
+    private static final String CARD_JOINPAGE = "joinpage";
+    private static final String CARD_GAMEPLAY = "gameplay";
 
     private JFrame frame;
     private JoinCallback joinCallback;
+    private M2C m2c;
+    
     
     public static void applySwingLookAndFeel()
     {
@@ -72,6 +67,7 @@ public class MainWindow {
         frame = new JFrame("Battleship");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(640, 480);
+        m2c = new M2C();
         
         joinCallback = new JoinCallback() {
             @Override
@@ -79,32 +75,48 @@ public class MainWindow {
                              BusyInterface busy)
             {
                 Connect c;
-                JoinConnectBusy b;
+                JoinConnect b;
                 
-                b = new JoinConnectBusy(busy);
-                c = new Connect(playerName, address, b, null);
-                
-                b.setConnect(c);
+                busy.busy();
+                b = new JoinConnect(busy);
+                c = new Connect(playerName, address, b, m2c);
                 
                 new Thread(c).start();
             }
         };
         
-        frame.setLayout(new GridBagLayout());
+        Container fc = frame.getContentPane();
+        
+        fc.setLayout(new CardLayout());
+        
+        JPanel joinPage = new JPanel(new GridBagLayout());
         
         GridBagConstraints c = new GridBagConstraints();
         
         JoinPanel jp = new JoinPanel(joinCallback, frame.getRootPane());
-        FleetMapPanel dp = new FleetMapPanel(new Something());
-        
         jp.setPreferredSize(new Dimension(320, 240));
+        joinPage.add(jp, c);
         
-        frame.add(jp, c);
-        //frame.add(dp);
+        GameplayPanel gameplayPage = new GameplayPanel();
+        
+        fc.add(joinPage, CARD_JOINPAGE);
+        fc.add(gameplayPage, CARD_GAMEPLAY);
     }
     
     public void show()
     {
         frame.setVisible(true);
+    }
+    
+    public void switchToJoinPage()
+    {
+        CardLayout l = (CardLayout)frame.getContentPane().getLayout();
+        l.show(frame.getContentPane(), CARD_JOINPAGE);
+    }
+    
+    public void switchToGameplay()
+    {
+        CardLayout l = (CardLayout)frame.getContentPane().getLayout();
+        l.show(frame.getContentPane(), CARD_GAMEPLAY);
     }
 }
