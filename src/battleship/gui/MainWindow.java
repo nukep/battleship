@@ -1,8 +1,45 @@
 package battleship.gui;
 
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
 import javax.swing.*;
 
+import battleship.client.NetClient;
+
 public class MainWindow {
+    private final class JoinConnectBusy implements BusyInterface {
+        private final BusyInterface busy;
+        private Connect c;
+
+        private JoinConnectBusy(BusyInterface busy) {
+            this.busy = busy;
+        }
+
+        @Override
+        public void busy() {
+            busy.busy();
+        }
+
+        @Override
+        public void unbusy() {
+            NetClient client = c.getNetClient();
+            
+            if (client == null) {
+                JOptionPane.showMessageDialog(null, c.getException());
+            } else {
+                // connection successful
+            }
+            busy.unbusy();
+        }
+        
+        public void setConnect(Connect c)
+        {
+            this.c = c;
+        }
+    }
+
     private final class Something implements MapInterface {
         @Override
         public void boxActivate(int x, int y) {
@@ -38,16 +75,31 @@ public class MainWindow {
         
         joinCallback = new JoinCallback() {
             @Override
-            public void join(String playerName, String address)
+            public void join(String playerName, String address,
+                             BusyInterface busy)
             {
-                JOptionPane.showMessageDialog(null, playerName + "\n" + address);
+                Connect c;
+                JoinConnectBusy b;
+                
+                b = new JoinConnectBusy(busy);
+                c = new Connect(playerName, address, b, null);
+                
+                b.setConnect(c);
+                
+                new Thread(c).start();
             }
         };
+        
+        frame.setLayout(new GridBagLayout());
+        
+        GridBagConstraints c = new GridBagConstraints();
         
         JoinPanel jp = new JoinPanel(joinCallback, frame.getRootPane());
         FleetMapPanel dp = new FleetMapPanel(new Something());
         
-        frame.add(jp);
+        jp.setPreferredSize(new Dimension(320, 240));
+        
+        frame.add(jp, c);
         //frame.add(dp);
     }
     

@@ -7,46 +7,50 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
-public class JoinPanel extends JPanel {
+public class JoinPanel extends JPanel implements BusyInterface {
     private static final long serialVersionUID = 1L;
 
     private class JoinButtonListener implements ActionListener {
         private JoinCallback joinCallback;
-        private JTextField playerNameField, addressField;
 
-        private JoinButtonListener(JoinCallback joinCallback,
-                                    JTextField playerNameField,
-                                    JTextField addressField)
+        private JoinButtonListener(JoinCallback joinCallback)
         {
             this.joinCallback = joinCallback;
-            this.playerNameField = playerNameField;
-            this.addressField = addressField;
         }
 
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            joinCallback.join(playerNameField.getText(),
-                              addressField.getText());
+            String playerName = playerNameField.getText();
+            String address = addressField.getText();
+            
+            if (playerName.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Please enter your name");
+            } else if (address.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Please enter the server address");
+            } else {
+                joinCallback.join(playerName, address, JoinPanel.this);
+            }
         }
     }
     
     private WaitingPanel wp;
+    private JButton joinButton;
+    private JTextField playerNameField, addressField;
     
     public JoinPanel(final JoinCallback joinCallback, JRootPane rootPane)
     {
-        JTextField playerNameField = new JTextField();
-        JTextField addressField = new JTextField();
+        playerNameField = new JTextField();
+        addressField = new JTextField("localhost");
 
-        JButton joinButton = new JButton("Join");
-        joinButton.addActionListener(
-                new JoinButtonListener(joinCallback,
-                                       playerNameField, addressField)
-        );
+        joinButton = new JButton("Join");
+        joinButton.addActionListener(new JoinButtonListener(joinCallback));
         
         setLayout(new GridBagLayout());
         
@@ -79,17 +83,50 @@ public class JoinPanel extends JPanel {
         c.weightx = 0.5;
         c.gridx = 2;
         add(joinButton, c);
+
+        wp = new WaitingPanel();
+        wp.setVisible(false);
+        JLabel dummy = new JLabel();
+        dummy.setPreferredSize(wp.getPreferredSize());
         
         c.gridx = 0;
         c.weightx = 0;
         c.gridy++;
-        wp = new WaitingPanel();
+        add(dummy, c);
+        
+        c.gridx++;
         add(wp, c);
         
         rootPane.setDefaultButton(joinButton);
     }
+
+    @Override
+    public void busy() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                joinButton.setEnabled(false);
+                playerNameField.setEnabled(false);
+                addressField.setEnabled(false);
+                wp.setVisible(true);
+            }
+        });
+    }
+
+    @Override
+    public void unbusy() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                wp.setVisible(false);
+                addressField.setEnabled(true);
+                playerNameField.setEnabled(true);
+                joinButton.setEnabled(true);
+            }
+        });
+    }
 }
 
 interface JoinCallback {
-    public void join(String playerName, String address);
+    public void join(String playerName, String address, BusyInterface busy);
 }

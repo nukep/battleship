@@ -8,10 +8,13 @@ import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 
 import javax.swing.JPanel;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 public class WaitingPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     
+    /* the animation progress; number of seconds elapsed */
     private double phase = 0;
     
     public WaitingPanel(int size)
@@ -26,6 +29,23 @@ public class WaitingPanel extends JPanel {
         });
         
         setPreferredSize(new Dimension(size, size));
+        
+        /* every time the panel is made visible, reset the phase */
+        
+        addAncestorListener(new AncestorListener() {
+            @Override
+            public void ancestorAdded(AncestorEvent arg0) {
+                phase = 0;
+            }
+            
+            @Override
+            public void ancestorRemoved(AncestorEvent arg0) {
+            }
+            
+            @Override
+            public void ancestorMoved(AncestorEvent arg0) {
+            }
+        });
     }
     
     public WaitingPanel()
@@ -46,10 +66,15 @@ public class WaitingPanel extends JPanel {
     
     private double adjustPhase(double phase)
     {
-        /* window is 0 to 0.5 */
-        double window = 0.125;
+        /* converts a linear 0..1 function to a sinusoidal easing function */
         
-        phase = phase % 1.0;
+        /* window is 0.0 to 0.5 (non-inclusive)
+         * window is the "non-intensity" of the easing function.
+         * 0.0 is the most extreme (cosine with no adjustments)
+         * 0.5 approaches a line. literally assigning 0.5+ is undefined! */
+        double window = 1.0/16;
+        
+        phase = (phase + 1.0) % 1.0;
         phase = phase*(1-window*2) + window;
         
         /* some funky maths stuff */
@@ -78,7 +103,7 @@ public class WaitingPanel extends JPanel {
         
         super.paintComponent(g);
         
-        g2d.setColor(new Color(255,0,0,255));
+        g2d.setColor(new Color(255,128,0));
         
         int num_circles = 4;
         double arc_occupy = 0.5;

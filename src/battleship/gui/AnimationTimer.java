@@ -17,17 +17,14 @@ public class AnimationTimer {
     final static int FPS = 60;
     
     private Timer timer;
+    private boolean firstTick;
     
     public AnimationTimer(JComponent component, final AnimationTimerCallback cb)
     {
         int delay = 1000 / FPS;
         timer = new Timer(delay, new ActionListener() {
-            {
-                firstTick = true;
-            }
             
             private long prev_ms;
-            private boolean firstTick;
             
             @Override
             public void actionPerformed(ActionEvent e)
@@ -39,11 +36,10 @@ public class AnimationTimer {
                     // prev_ms is not set yet - no difference can be calculated
                     
                     firstTick = false;
-                    diff = (double)1000 / FPS;
+                    diff = 1.0 / FPS;
                 } else {
                     long diff_ms = cur_ms - prev_ms;
                     diff = (double)diff_ms / 1000;
-                    
                 }
                 cb.trigger(diff);
                 
@@ -58,6 +54,7 @@ public class AnimationTimer {
             public void ancestorAdded(AncestorEvent arg0) {
                 /* shown / added */
                 
+                firstTick = true;
                 timer.start();
             }
 
