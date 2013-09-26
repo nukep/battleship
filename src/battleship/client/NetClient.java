@@ -11,6 +11,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import battleship.logic.MessageToClient;
 import battleship.logic.MessageToServer;
+import battleship.netmessages.NetClientDisconnected;
 import battleship.netmessages.NetServerChat;
 import battleship.netmessages.MessageNetClient;
 import battleship.netmessages.MessageNetServer;
@@ -19,22 +20,22 @@ import battleship.netmessages.NetServerStrike;
 
 public class NetClient implements MessageToServer {
     private Socket socket;
-    private MessageToClient m2c;
+    private NetClientDispatchable dispatcher;
     private Thread inputThread, outputThread;
     
     private BlockingQueue<MessageNetServer> outputQueue;
     
-    public NetClient(Socket socket, MessageToClient m2c)
+    public NetClient(Socket socket, NetClientDispatchable dispatcher)
     {
         this.socket = socket;
-        this.m2c = m2c;
+        this.dispatcher = dispatcher;
     }
     
     public void start()
     {
         outputQueue = new LinkedBlockingQueue<>();
         
-        inputThread = new Thread(new InputRunnable(socket, m2c));
+        inputThread = new Thread(new InputRunnable(socket, dispatcher));
         outputThread = new Thread(new OutputRunnable(socket, outputQueue));
         
         inputThread.start();
@@ -80,12 +81,12 @@ public class NetClient implements MessageToServer {
 
 class InputRunnable implements Runnable {
     private Socket socket;
-    private MessageToClient m2c;
+    private NetClientDispatchable dispatcher;
 
-    public InputRunnable(Socket socket, MessageToClient m2c)
+    public InputRunnable(Socket socket, NetClientDispatchable dispatcher)
     {
         this.socket = socket;
-        this.m2c = m2c;
+        this.dispatcher = dispatcher;
     }
 
     @Override
@@ -103,7 +104,7 @@ class InputRunnable implements Runnable {
                     throw new IOException("Message is not a NetClientMessage");
                 }
 
-                message.toClient(m2c);
+                dispatcher.dispatch(message);
             }
         } catch (ClassNotFoundException e) {
         } catch (EOFException|SocketException e) {
@@ -112,11 +113,12 @@ class InputRunnable implements Runnable {
             System.err.println("Client IO error (read): " + e);
         }
         
-        System.out.println("Input thread ended");
-        
         try {
             socket.close();
         } catch (IOException e) {}
+        
+        // we've been disconnected - disconnected message
+        dispatcher.dispatch(new NetClientDisconnected(false));
     }
 }
 

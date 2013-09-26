@@ -80,11 +80,11 @@ public class FleetMapPanel extends JPanel {
     
         @Override
         public void mouseClicked(MouseEvent arg0) {
-            Coord c = tr.transformInverse(arg0.getX(), arg0.getY());
+            Coord c = fleet_tr.transformInverse(arg0.getX(), arg0.getY());
             int x = (int)Math.floor(c.x*grid_columns);
             int y = (int)Math.floor(c.y*grid_rows);
             if (x >= 0 && y >= 0 && x < grid_columns && y < grid_rows) {
-                gridInterface.boxActivate(x, y);
+                fleet_grid.boxActivate(x, y);
             }
         }
     }
@@ -93,7 +93,7 @@ public class FleetMapPanel extends JPanel {
         @Override
         public void mouseMoved(MouseEvent e) {
             // TODO Auto-generated method stub
-            Coord c = tr.transformInverse(e.getX(), e.getY());
+            Coord c = fleet_tr.transformInverse(e.getX(), e.getY());
             mouse_x = (int)Math.floor(c.x*grid_columns);
             mouse_y = (int)Math.floor(c.y*grid_rows);
             
@@ -109,23 +109,24 @@ public class FleetMapPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     
-    private MapInterface gridInterface;
-    private MapTransform tr;
+    private MapInterface fleet_grid;
+    private MapTransform target_tr, fleet_tr;
     private int grid_columns = 10;
     private int grid_rows = 10;
     private int mouse_x, mouse_y;
     
-    public FleetMapPanel(MapInterface gridInterface)
+    public FleetMapPanel(MapInterface target_grid, MapInterface fleet_grid)
     {
-        this.gridInterface = gridInterface;
-        tr =  new MapTransform(200, 500, 100, 600, 150, 400);
-        //tr = new MapTransform(200, 500, 200, 500, 100, 400);
+        this.fleet_grid = fleet_grid;
+        target_tr = new MapTransform(180, 520, 200, 500, 0, 290);
+        fleet_tr =  new MapTransform(200, 500, 100, 600, 300, 550);
         
         addMouseListener(new Mouse());
         addMouseMotionListener(new MouseMotion());
     }
     
-    private void drawMapSqaure(Graphics2D g2d, int x, int y, double inset)
+    private void drawMapSqaure(Graphics2D g2d, MapTransform tr,
+                               int x, int y, double inset)
     {
         double px = (x+inset) / grid_columns;
         double py = (y+inset) / grid_rows;
@@ -150,7 +151,7 @@ public class FleetMapPanel extends JPanel {
         g2d.fill(dp);
     }
     
-    private void drawMapGrid(Graphics2D g2d)
+    private void drawMapGrid(Graphics2D g2d, MapTransform tr)
     {
         // draw column lines (vertical-ish)
         for (int i = 0; i < grid_columns + 1; i++) {
@@ -175,7 +176,7 @@ public class FleetMapPanel extends JPanel {
     
     private void drawShip(Graphics2D g2d, int x, int y, int type, boolean isHorizontal)
     {
-        PathTransform pt = new PathTransform(tr, grid_columns, grid_rows);
+        PathTransform pt = new PathTransform(fleet_tr, grid_columns, grid_rows);
         pt.translate(x,  y);
         pt.moveTo(0, 0);
         pt.lineTo(0, 1);
@@ -202,7 +203,7 @@ public class FleetMapPanel extends JPanel {
                 && mouse_y >= 0 && mouse_y < grid_rows)
         {
             g2d.setColor(new Color(0, 0, 0, 32));
-            drawMapSqaure(g2d, mouse_x, mouse_y, 0.0);
+            drawMapSqaure(g2d, fleet_tr, mouse_x, mouse_y, 0.0);
 
             g2d.setColor(Color.gray);
             g2d.drawString(coordToText(mouse_x, mouse_y), 0, 50);
@@ -210,6 +211,7 @@ public class FleetMapPanel extends JPanel {
         
         g2d.setColor(new Color(64, 64, 64));
         
-        drawMapGrid(g2d);
+        drawMapGrid(g2d, target_tr);
+        drawMapGrid(g2d, fleet_tr);
     }
 }

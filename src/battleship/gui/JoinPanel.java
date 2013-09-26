@@ -44,7 +44,7 @@ public class JoinPanel extends JPanel implements BusyInterface {
     private JButton joinButton;
     private JTextField playerNameField, addressField;
     
-    public JoinPanel(final JoinCallback joinCallback, JRootPane rootPane)
+    public JoinPanel(final JoinCallback joinCallback)
     {
         playerNameField = new JTextField();
         addressField = new JTextField("localhost");
@@ -96,8 +96,11 @@ public class JoinPanel extends JPanel implements BusyInterface {
         
         c.gridx++;
         add(wp, c);
-        
-        rootPane.setDefaultButton(joinButton);
+    }
+    
+    public JButton getDefaultButton()
+    {
+        return joinButton;
     }
 
     @Override

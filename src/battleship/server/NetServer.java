@@ -33,6 +33,9 @@ public class NetServer implements Runnable {
                 System.err.println("Server IO error: " + e);
             }
         }
+        
+        // close all ongoing games
+        matchMaker.closeAll();
     }
     
     public void stop()

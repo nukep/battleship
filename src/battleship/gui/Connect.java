@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.Socket;
 
 import battleship.client.NetClient;
+import battleship.client.NetClientDispatchToSwing;
+import battleship.client.NetClientDispatchable;
 import battleship.logic.MessageToClient;
 import battleship.logic.MessageToServer;
 import battleship.logic.NetConstants;
@@ -12,7 +14,7 @@ public class Connect implements Runnable {
     private String name;
     private String host;
     private ConnectInterface connectInterface;
-    private MessageToClient m2c;
+    private NetClientDispatchable dispatcher;
     
     private Socket socket;
     private NetClient client;
@@ -23,7 +25,7 @@ public class Connect implements Runnable {
         this.name = name;
         this.host = host;
         this.connectInterface = connectInterface;
-        this.m2c = m2c;
+        this.dispatcher = new NetClientDispatchToSwing(m2c);
         
         this.client = null;
     }
@@ -33,7 +35,7 @@ public class Connect implements Runnable {
         try {
             socket = new Socket(host, NetConstants.DEFAULT_PORT);
             
-            client = new NetClient(socket, m2c);
+            client = new NetClient(socket, dispatcher);
             client.start();
             client.connect(name);
             

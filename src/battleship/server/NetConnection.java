@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -15,6 +16,7 @@ import battleship.logic.Player;
 import battleship.netmessages.MessageNetClient;
 import battleship.netmessages.MessageNetServer;
 import battleship.netmessages.NetClientChat;
+import battleship.netmessages.NetClientDisconnected;
 import battleship.netmessages.NetClientOpponentJoin;
 import battleship.netmessages.NetServerConnect;
 
@@ -36,14 +38,16 @@ class NetConnection implements MessageToClient {
         outputQueue = new LinkedBlockingQueue<>();
 
         inputRunnable = new InputRunnable(socket, matchHandle);
-        inThread = new Thread(inputRunnable);
-        outThread = new Thread(new OutputRunnable(socket, outputQueue));
+        inThread = new Thread(inputRunnable,
+                              matchHandle.getID() + " Input");
+        outThread = new Thread(new OutputRunnable(socket, outputQueue),
+                               matchHandle.getID() + " Output");
         
         inThread.start();
         outThread.start();
     }
     
-    public void stop()
+    public void close()
     {
         // unblock any IO read/write methods
         try {
@@ -58,7 +62,7 @@ class NetConnection implements MessageToClient {
     
     public void stopAndWait() throws InterruptedException
     {
-        stop();
+        close();
         inThread.join();
         outThread.join();
     }
@@ -69,9 +73,8 @@ class NetConnection implements MessageToClient {
     }
 
     @Override
-    public void opponentLeave() {
-        // TODO Auto-generated method stub
-        
+    public void disconnected(boolean opponentLeft) {
+        enqueueClientMessage(new NetClientDisconnected(opponentLeft));
     }
 
     @Override
@@ -119,6 +122,11 @@ class NetMatchHandle {
         this.conn = conn;
     }
 
+    public int getID()
+    {
+        return matchmaker.getID(conn);
+    }
+
     public NetGamePlayerHandle connect(Player player)
             throws InterruptedException
     {
@@ -131,7 +139,15 @@ class NetMatchHandle {
     }
 }
 
-class InputRunnable implements Runnable {    
+class InputRunnable implements Runnable {   
+    class InputMessageRunnable implements Runnable {
+        @Override
+        public void run()
+        {
+            // TODO Auto-generated method stub
+            
+        }
+    } 
     private Socket socket;
     private NetMatchHandle matchHandle;
 
@@ -159,6 +175,7 @@ class InputRunnable implements Runnable {
             
             // register connection with the server (matches players)
             // wait for a match
+            // TODO - non-socket blocking is forbidden in Input thread
             playerHandle = matchHandle.connect(connectMessage.toPlayer());
             
             playerHandle.messageToServer(connectMessage);
@@ -174,23 +191,22 @@ class InputRunnable implements Runnable {
 
                 playerHandle.messageToServer(message);
             }
-        } catch (EOFException e) {
+        } catch (EOFException|SocketException e) {
             // connection has ended
         } catch (IOException e) {
             System.err.println("Server IO error (" + socket.getInetAddress() + "): " + e);
         } catch (ClassNotFoundException e) {
             // this is a bad thing to happen
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            // interrupted while matchmaking
         }
         
-        System.out.println("Client disconnected");
-        
+        // close the socket
         try {
             socket.close();
         } catch (IOException e) {}
+        
+        // alert the match maker that the client disconnected
+        matchHandle.disconnect();
     }
 }
 

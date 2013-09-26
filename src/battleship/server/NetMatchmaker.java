@@ -1,5 +1,6 @@
 package battleship.server;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import battleship.logic.Player;
@@ -7,11 +8,13 @@ import battleship.logic.Player;
 class NetMatchmaker {
     private LinkedList<NetGame> activeGames;
     private NetGame waitingGame;
+    private int totalConnectionsMade;
     
     public NetMatchmaker()
     {
         activeGames = new LinkedList<>();
         waitingGame = null;
+        totalConnectionsMade = 0;
     }
     
     public synchronized NetGamePlayerHandle connect(NetConnection conn,
@@ -27,7 +30,7 @@ class NetMatchmaker {
             // create a new game
             game = new NetGame(conn, player);
             // start its thread
-            new Thread(game).start();
+            game.start();
             waitingGame = game;
         } else {
             // an existing game is waiting for a player
@@ -51,8 +54,37 @@ class NetMatchmaker {
     
     public synchronized void disconnect(NetConnection conn)
     {
+        if (waitingGame != null && waitingGame.hasConnection(conn)) {
+            waitingGame.close();
+            waitingGame = null;
+        } else {
+            Iterator<NetGame> it = activeGames.iterator();
+            
+            while (it.hasNext()) {
+                NetGame g = it.next();
+                if (g.hasConnection(conn)) {
+                    g.close();
+                    it.remove();
+                    break;
+                }
+            }
+        }
+    }
+
+    public synchronized int getID(NetConnection conn)
+    {
         // TODO
+        return 0;
+    }
+
+    public synchronized void closeAll()
+    {
+        if (waitingGame != null) {
+            waitingGame.close();
+        }
         
-        // give the remaining player an option to play another game
+        for (NetGame g : activeGames) {
+            g.close();
+        }
     }
 }

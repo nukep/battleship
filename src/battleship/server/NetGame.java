@@ -8,7 +8,7 @@ import battleship.logic.MessageToServer;
 import battleship.logic.Player;
 import battleship.netmessages.MessageNetServer;
 
-class NetGame implements Runnable {
+class NetGame extends Thread {
     private Object secondConnectionCondition;
     private NetConnection conn1, conn2;
     private Player player1, player2;
@@ -65,6 +65,22 @@ class NetGame implements Runnable {
     public NetGamePlayerHandle getPlayerHandle(int playerNumber)
     {
         return new NetGamePlayerHandle(playerNumber, serverQueue);
+    }
+    
+    public boolean hasConnection(NetConnection connection)
+    {
+        return (connection == conn1) || (connection == conn2);
+    }
+    
+    public void close()
+    {
+        conn1.close();
+        
+        if (conn2 != null) {
+            conn2.close();
+        }
+        
+        this.interrupt();
     }
 }
 

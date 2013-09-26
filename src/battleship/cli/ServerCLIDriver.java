@@ -13,7 +13,7 @@ public class ServerCLIDriver {
             
             System.out.println("Server is started");
             
-            new Thread(new ServerCLICommandLine(server)).start();
+            new Thread(new ServerCLICommandLine(server), "Server CLI").start();
             
             server.run();
             
