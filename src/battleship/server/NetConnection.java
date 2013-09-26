@@ -56,7 +56,7 @@ class NetConnection implements MessageToClient {
         } catch (IOException e) {}  // silently close
         
         // unblock any thread-blocking methods (e.g. wait, sleep, join)
-        inThread.interrupt();
+        // inThread cannot be interrupted
         outThread.interrupt();
     }
     
@@ -144,52 +144,53 @@ class InputRunnable implements Runnable {
         @Override
         public void run()
         {
-            // TODO Auto-generated method stub
-            
+            try {
+                NetGamePlayerHandle playerHandle;
+                
+                NetServerConnect connectMessage;
+                connectMessage = (NetServerConnect)messageQueue.take();
+                
+                playerHandle = matchHandle.connect(connectMessage.toPlayer());
+                playerHandle.messageToServer(connectMessage);
+                
+                while (true) {
+                    MessageNetServer message = messageQueue.take();
+                    playerHandle.messageToServer(message);
+                }
+            } catch (InterruptedException e) {
+                // connection closed
+                Thread.currentThread().interrupt();
+            }
         }
-    } 
+    }
+    
     private Socket socket;
     private NetMatchHandle matchHandle;
+    private BlockingQueue<MessageNetServer> messageQueue;
 
     public InputRunnable(Socket socket, NetMatchHandle matchHandle)
     {
         this.socket = socket;
         this.matchHandle = matchHandle;
+        this.messageQueue = new LinkedBlockingQueue<>();
     }
 
     @Override
     public void run()
     {
+        // start a separate message thread that reads from a BlockingQueue
+        Thread messageThread = new Thread(new InputMessageRunnable());
+        messageThread.start();
+        
         try {
             ObjectInputStream ois;
             ois = new ObjectInputStream(socket.getInputStream());
             
-            NetServerConnect connectMessage;
-            connectMessage = (NetServerConnect)ois.readObject();
-            
-            if (!(connectMessage instanceof NetServerConnect)) {
-                throw new IOException("Message is not NetServerConnect");
-            }
-            
-            NetGamePlayerHandle playerHandle;
-            
-            // register connection with the server (matches players)
-            // wait for a match
-            // TODO - non-socket blocking is forbidden in Input thread
-            playerHandle = matchHandle.connect(connectMessage.toPlayer());
-            
-            playerHandle.messageToServer(connectMessage);
-            
             while (true) {
                 MessageNetServer message;
                 message = (MessageNetServer)ois.readObject();
-                
-                if (!(message instanceof MessageNetServer)) {
-                    // object is not the type we were expecting
-                    throw new IOException("Message is not a NetServerMessage");
-                }
 
-                playerHandle.messageToServer(message);
+                messageQueue.add(message);
             }
         } catch (EOFException|SocketException e) {
             // connection has ended
@@ -198,12 +199,22 @@ class InputRunnable implements Runnable {
         } catch (ClassNotFoundException e) {
             // this is a bad thing to happen
             e.printStackTrace();
+        } catch (ClassCastException e) {
+            // might happen if read object is of the wrong class type
+            e.printStackTrace();
         }
         
         // close the socket
         try {
             socket.close();
         } catch (IOException e) {}
+        
+        // tell the message thread to stop taking from the queue and to die
+        messageThread.interrupt();
+        
+        try {
+            messageThread.join();
+        } catch (InterruptedException e) {}
         
         // alert the match maker that the client disconnected
         matchHandle.disconnect();
