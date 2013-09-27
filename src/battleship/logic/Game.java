@@ -56,6 +56,7 @@ class PlayerInput implements MessageToServer {
         
         new_message = String.format("%s: %s", player_you.getName(), message);
         
+        // send the chat message to yourself and your opponent
         you.chat(new_message, now);
         opponent.chat(new_message, now);
     }

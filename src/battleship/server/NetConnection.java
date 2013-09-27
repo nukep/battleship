@@ -178,7 +178,11 @@ class InputRunnable implements Runnable {
     @Override
     public void run()
     {
-        // start a separate message thread that reads from a BlockingQueue
+        /* start a separate message thread that reads from a BlockingQueue
+         * we need this so that only socket reads can block this thread.
+         * otherwise, we can't know if the socket closes if something else
+         * (such as wait()) blocks this thread.
+         */
         Thread messageThread = new Thread(new InputMessageRunnable());
         messageThread.start();
         
