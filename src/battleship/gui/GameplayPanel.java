@@ -70,7 +70,7 @@ public class GameplayPanel extends JPanel {
         c.gridx = 0;
         c.gridy = 0;
         
-        this.add(new FleetMapPanel(new MapInterface() {
+        this.add(new MapPanel(new MapInterface() {
             @Override
             public void boxActivate(int x, int y) {
                 System.out.printf("target: %d x %d\n", x, y);
