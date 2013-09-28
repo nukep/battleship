@@ -9,10 +9,10 @@ import java.awt.GridBagLayout;
 import javax.swing.*;
 
 public class MainWindow {
-    private final class JoinConnect implements ConnectInterface {
-        private final BusyInterface busy;
+    private final class JoinConnect implements ConnectListener {
+        private final BusyListener busy;
 
-        private JoinConnect(BusyInterface busy) {
+        private JoinConnect(BusyListener busy) {
             this.busy = busy;
         }
 
@@ -77,7 +77,7 @@ public class MainWindow {
         joinCallback = new JoinCallback() {
             @Override
             public void join(String playerName, String address,
-                             BusyInterface busy)
+                             BusyListener busy)
             {
                 Connect c;
                 JoinConnect b;

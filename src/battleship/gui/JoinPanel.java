@@ -13,7 +13,7 @@ import javax.swing.JRootPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-public class JoinPanel extends JPanel implements BusyInterface {
+public class JoinPanel extends JPanel implements BusyListener {
     private static final long serialVersionUID = 1L;
 
     private class JoinButtonListener implements ActionListener {
@@ -131,5 +131,5 @@ public class JoinPanel extends JPanel implements BusyInterface {
 }
 
 interface JoinCallback {
-    public void join(String playerName, String address, BusyInterface busy);
+    public void join(String playerName, String address, BusyListener busy);
 }

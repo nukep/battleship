@@ -13,18 +13,18 @@ import battleship.logic.NetConstants;
 public class Connect implements Runnable {
     private String name;
     private String host;
-    private ConnectInterface connectInterface;
+    private ConnectListener connectListener;
     private NetClientDispatchable dispatcher;
     
     private Socket socket;
     private NetClient client;
 
-    public Connect(String name, String host, ConnectInterface connectInterface,
+    public Connect(String name, String host, ConnectListener connectListener,
                    MessageToClient m2c)
     {
         this.name = name;
         this.host = host;
-        this.connectInterface = connectInterface;
+        this.connectListener = connectListener;
         this.dispatcher = new NetClientDispatchToSwing(m2c);
         
         this.client = null;
@@ -39,9 +39,9 @@ public class Connect implements Runnable {
             client.start();
             client.connect(name);
             
-            connectInterface.connect(this);
+            connectListener.connect(this);
         } catch (IOException e) {
-            connectInterface.error(e);
+            connectListener.error(e);
         }
     }
     
@@ -51,7 +51,7 @@ public class Connect implements Runnable {
     }
 }
 
-interface ConnectInterface {
+interface ConnectListener {
     public void connect(Connect c);
     public void error(Exception e);
 }

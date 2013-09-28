@@ -6,7 +6,7 @@ package battleship.gui;
  * 
  * The methods must be callable from any thread (thread-safe).
  */
-public interface BusyInterface {
+public interface BusyListener {
     public void busy();
     public void unbusy();
 }

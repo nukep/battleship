@@ -81,9 +81,9 @@ public class MapPanel extends JPanel {
     
         @Override
         public void mouseClicked(MouseEvent arg0) {
-            activateMapInterface(arg0.getX(), arg0.getY(),
+            activateMapBox(arg0.getX(), arg0.getY(),
                                  target_tr, target_grid);
-            activateMapInterface(arg0.getX(), arg0.getY(),
+            activateMapBox(arg0.getX(), arg0.getY(),
                                  fleet_tr, fleet_grid);
         }
     }
@@ -102,13 +102,13 @@ public class MapPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     
-    private MapInterface target_grid, fleet_grid;
+    private MapBoxActivate target_grid, fleet_grid;
     private MapTransform target_tr, fleet_tr;
     private ShipConfiguration shipConfiguration;
     private int grid_columns = 10;
     private int grid_rows = 10;
     
-    public MapPanel(MapInterface target_grid, MapInterface fleet_grid,
+    public MapPanel(MapBoxActivate target_grid, MapBoxActivate fleet_grid,
                     ShipConfiguration shipConfiguration)
     {
         this.target_grid = target_grid;
@@ -265,8 +265,8 @@ public class MapPanel extends JPanel {
         drawMapSqaure(g2d, fleet_tr, 1, 6, 0.0);
     }
     
-    public void activateMapInterface(int m_x, int m_y,
-                                     MapTransform tr, MapInterface i)
+    public void activateMapBox(int m_x, int m_y,
+                               MapTransform tr, MapBoxActivate i)
     {
         Coord c = tr.transformInverse(m_x, m_y);
         int x = (int)Math.floor(c.x*grid_columns);

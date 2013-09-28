@@ -1,5 +1,5 @@
 package battleship.gui;
 
-public interface MapInterface {
+public interface MapBoxActivate {
     public void boxActivate(int x, int y);
 }

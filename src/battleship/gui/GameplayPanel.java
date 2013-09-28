@@ -71,12 +71,12 @@ public class GameplayPanel extends JPanel {
         
         shipConfiguration = new ShipConfiguration();
         
-        this.add(new MapPanel(new MapInterface() {
+        this.add(new MapPanel(new MapBoxActivate() {
             @Override
             public void boxActivate(int x, int y) {
                 System.out.printf("target: %d x %d\n", x, y);
             }
-        }, new MapInterface() {
+        }, new MapBoxActivate() {
             
             @Override
             public void boxActivate(int x, int y)
