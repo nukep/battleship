@@ -1,20 +1,18 @@
 package battleship.gui;
 
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import battleship.logic.MessageToServer;
+import battleship.logic.ShipConfiguration;
 
 public class GameplayPanel extends JPanel {
     private static final long serialVersionUID = 1L;
@@ -24,6 +22,7 @@ public class GameplayPanel extends JPanel {
     private JButton chatSendButton;
     
     private MessageToServer m2s;
+    private ShipConfiguration shipConfiguration;
     
     private JPanel initChatlinePanel()
     {
@@ -70,6 +69,8 @@ public class GameplayPanel extends JPanel {
         c.gridx = 0;
         c.gridy = 0;
         
+        shipConfiguration = new ShipConfiguration();
+        
         this.add(new MapPanel(new MapInterface() {
             @Override
             public void boxActivate(int x, int y) {
@@ -82,7 +83,7 @@ public class GameplayPanel extends JPanel {
             {
                 System.out.printf("fleet: %d x %d\n", x, y);
             }
-        }), c);
+        }, shipConfiguration), c);
         
         c.weighty = 0.0;
         c.gridy++;

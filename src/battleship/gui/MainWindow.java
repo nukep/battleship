@@ -102,7 +102,6 @@ public class MainWindow {
         joinPanel.setPreferredSize(new Dimension(320, 240));
         joinPage.add(joinPanel, c);
         
-        
         fc.add(joinPage, CARD_JOINPAGE);
         fc.add(gameplayPanel, CARD_GAMEPLAY);
         

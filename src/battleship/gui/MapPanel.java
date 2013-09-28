@@ -12,6 +12,8 @@ import java.awt.geom.Path2D;
 
 import javax.swing.JPanel;
 
+import battleship.logic.ShipConfiguration;
+
 class PathTransform {
     private MapTransform tr;
     private int columns;
@@ -103,15 +105,19 @@ public class MapPanel extends JPanel {
     
     private MapInterface target_grid, fleet_grid;
     private MapTransform target_tr, fleet_tr;
+    private ShipConfiguration shipConfiguration;
     private int grid_columns = 10;
     private int grid_rows = 10;
     
-    public MapPanel(MapInterface target_grid, MapInterface fleet_grid)
+    public MapPanel(MapInterface target_grid, MapInterface fleet_grid,
+                    ShipConfiguration shipConfiguration)
     {
         this.target_grid = target_grid;
         this.fleet_grid = fleet_grid;
+        this.shipConfiguration = shipConfiguration;
+        
         target_tr = new MapTransform(180, 520, 200, 500, 0, 290);
-        fleet_tr =  new MapTransform(200, 500, 100, 600, 300, 550);
+        fleet_tr  = new MapTransform(200, 500, 100, 600, 300, 550);
         
         addMouseListener(new Mouse());
         addMouseMotionListener(new MouseMotion());
