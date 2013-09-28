@@ -3,7 +3,6 @@ package battleship.gui;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -116,11 +115,39 @@ public class MapPanel extends JPanel {
         this.fleet_grid = fleet_grid;
         this.shipConfiguration = shipConfiguration;
         
-        target_tr = new MapTransform(180, 520, 200, 500, 0, 290);
-        fleet_tr  = new MapTransform(200, 500, 100, 600, 300, 550);
-        
         addMouseListener(new Mouse());
         addMouseMotionListener(new MouseMotion());
+    }
+    
+    private void calculateTransforms(int width, int height)
+    {
+        double box_w = 500;
+        double box_h = 550;
+        
+        double scale = height/box_h;
+        double x_off = (width - box_w*scale)/2;
+        double y_off = 0.0;
+        
+        double[] target_arr = {80, 420, 100, 400, 0, 290};
+        double[] fleet_arr  = {100, 400, 0, 500, 300, 550};
+        
+        int i;
+        for (i = 0; i < 4; i++) {
+            target_arr[i] = target_arr[i]*scale + x_off;
+            fleet_arr[i] = fleet_arr[i]*scale + x_off;
+        }
+        for (; i < 6; i++) {
+            target_arr[i] = target_arr[i]*scale + y_off;
+            fleet_arr[i] = fleet_arr[i]*scale + y_off;
+        }
+
+        target_tr = new MapTransform(target_arr[0], target_arr[1],
+                                     target_arr[2], target_arr[3],
+                                     target_arr[4], target_arr[5]);
+        
+        fleet_tr = new MapTransform(fleet_arr[0], fleet_arr[1],
+                                    fleet_arr[2], fleet_arr[3],
+                                    fleet_arr[4], fleet_arr[5]);
     }
     
     private void drawMapSqaure(Graphics2D g2d, MapTransform tr,
@@ -218,6 +245,8 @@ public class MapPanel extends JPanel {
         Graphics2D g2d = DrawUtils.getGraphics2D(g);
         
         super.paintComponent(g);
+        
+        calculateTransforms(getWidth(), getHeight());
         
         g2d.setColor(new Color(64, 64, 64));
         
