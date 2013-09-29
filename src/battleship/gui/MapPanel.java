@@ -192,7 +192,7 @@ public class MapPanel extends JPanel {
 
     public GridCoord mouseToGridCoord(int m_x, int m_y, MapTransform tr)
     {
-        Coord c = tr.transformInverse(m_x, m_y);
+        MapTransform.Coord c = tr.transformInverse(m_x, m_y);
         int x = (int)Math.floor(c.x*grid_columns);
         int y = (int)Math.floor(c.y*grid_rows);
         boolean boxHit = x >= 0 && y >= 0 && x < grid_columns && y < grid_rows;
@@ -270,10 +270,5 @@ public class MapPanel extends JPanel {
         fleet_tr = new MapTransform(fleet_arr[0], fleet_arr[1],
                                     fleet_arr[2], fleet_arr[3],
                                     fleet_arr[4], fleet_arr[5]);
-    }
-    
-    private String coordToText(int x, int y)
-    {
-        return String.format("%c%d", (char)('A'+y), x+1);
     }
 }

@@ -9,16 +9,11 @@ import java.net.SocketException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import battleship.logic.MessageToClient;
 import battleship.logic.MessageToServer;
 import battleship.logic.ShipConfiguration;
-import battleship.netmessages.NetClientDisconnected;
-import battleship.netmessages.NetServerChat;
-import battleship.netmessages.MessageNetClient;
-import battleship.netmessages.MessageNetServer;
-import battleship.netmessages.NetServerConfigureFleet;
-import battleship.netmessages.NetServerConnect;
-import battleship.netmessages.NetServerStrike;
+import battleship.netmessages.*;
+import battleship.netmessages.client.NetClientDisconnected;
+import battleship.netmessages.server.*;
 
 public class NetClient implements MessageToServer {
     private Socket socket;
@@ -60,30 +55,25 @@ public class NetClient implements MessageToServer {
     @Override
     public void connect(String name)
     {
-        enqueueServerMessage(new NetServerConnect(name));
+        outputQueue.add(new NetServerConnect(name));
     }
     
     @Override
     public void chat(final String message)
     {
-        enqueueServerMessage(new NetServerChat(message));
+        outputQueue.add(new NetServerChat(message));
     }
 
     @Override
     public void configureFleet(ShipConfiguration shipConfiguration)
     {
-        enqueueServerMessage(new NetServerConfigureFleet(shipConfiguration));
+        outputQueue.add(new NetServerConfigureFleet(shipConfiguration));
     }
 
     @Override
     public void strikeSquare(int x, int y)
     {
-        enqueueServerMessage(new NetServerStrike(x, y));
-    }
-
-    private void enqueueServerMessage(MessageNetServer msg)
-    {
-        outputQueue.add(msg);
+        outputQueue.add(new NetServerStrike(x, y));
     }
 }
 
@@ -106,15 +96,10 @@ class InputRunnable implements Runnable {
             
             while (true) {
                 MessageNetClient message = (MessageNetClient)ois.readObject();
-                
-                if (!(message instanceof MessageNetClient)) {
-                    // object is not the type we were expecting
-                    throw new IOException("Message is not a NetClientMessage");
-                }
-
                 dispatcher.dispatch(message);
             }
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         } catch (EOFException|SocketException e) {
             // client or server closed the connection
         } catch (IOException e) {
@@ -156,7 +141,7 @@ class OutputRunnable implements Runnable {
         } catch (IOException e) {
             System.err.println("Client IO error (write): " + e);
         } catch (InterruptedException e) {
-            // client is trying to shut down
+            Thread.currentThread().interrupt();
         }
     }
 }

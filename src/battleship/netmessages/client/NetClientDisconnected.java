@@ -1,9 +1,11 @@
-package battleship.netmessages;
+package battleship.netmessages.client;
 
 import battleship.logic.MessageToClient;
+import battleship.netmessages.MessageNetClient;
 
 public class NetClientDisconnected implements MessageNetClient {
-
+    private static final long serialVersionUID = 1L;
+    
     private boolean opponentLeft;
     
     public NetClientDisconnected(boolean opponentLeft)

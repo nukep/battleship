@@ -13,6 +13,11 @@ public interface MessageToServer {
      * @param message
      */
     public void chat(String message);
+    /**
+     * The client is done configuring their fleet.
+     * 
+     * @param shipConfiguration
+     */
     public void configureFleet(ShipConfiguration shipConfiguration);
     /**
      * Strike one of the opponent's squares. It's now the opponent's turn.
@@ -21,8 +26,4 @@ public interface MessageToServer {
      * @param y
      */
     public void strikeSquare(int x, int y);
-    /**
-     * Send the server your fleet configuration.
-     */
-    //public void submitFleet();
 }

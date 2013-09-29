@@ -1,6 +1,7 @@
-package battleship.netmessages;
+package battleship.netmessages.server;
 
 import battleship.logic.MessageToServer;
+import battleship.netmessages.MessageNetServer;
 
 public class NetServerChat implements MessageNetServer {
     private static final long serialVersionUID = 1L;

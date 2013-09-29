@@ -1,6 +1,5 @@
 package battleship.gui.gamemodes;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +41,7 @@ public class ConfigureFleet implements GameMode {
     public void draw(Graphics2D g2d, MapPanelDraw target, MapPanelDraw fleet)
     {
         int y = 40;
-        g2d.setColor(Color.black);
+        target.color(0, 0, 0);
         g2d.drawString("Remaining ships", 10, y);
         
         y += 20;
@@ -51,10 +50,11 @@ public class ConfigureFleet implements GameMode {
         int i = 0;
         for (Integer shipLength: remainingShips) {
             if (i == currentShipIndex) {
-                g2d.setColor(Color.black);
+                target.color(0, 0, 0);
             } else {
-                g2d.setColor(Color.gray);
+                target.color(128, 128, 128);
             }
+            
             g2d.fillRect(10, y, shipHeight*shipLength, shipHeight);
             y += shipHeight + 5;
             i++;
@@ -67,9 +67,9 @@ public class ConfigureFleet implements GameMode {
             valid = !ships.hitTestShip(ship_x, ship_y, length, horizontal);
             
             if (valid) {
-                g2d.setColor(new Color(0,0,0,64));
+                target.color(0, 0, 0, 64);
             } else {
-                g2d.setColor(new Color(255,0,0,64));
+                target.color(255, 0, 0, 64);
             }
             
             fleet.ship(ship_x, ship_y, length, horizontal);

@@ -1,9 +1,5 @@
 package battleship.gui;
 
-class Coord {
-    public double x, y;
-}
-
 /**
  * Responsible for transforming 3d plane coordinates (local) to and from
  * screen coordinates.
@@ -12,6 +8,10 @@ class Coord {
  * Screen coordinates refer to what's projected on the screen.
  */
 class MapTransform {
+    public class Coord {
+        public double x, y;
+    }
+
     /* defines a trapezoid for our projected plane
      * left, right, y */
     private double top_l, bottom_l;

@@ -6,40 +6,33 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import battleship.logic.MessageToClient;
-import battleship.logic.MessageToServer;
 import battleship.logic.Player;
 import battleship.netmessages.MessageNetClient;
 import battleship.netmessages.MessageNetServer;
-import battleship.netmessages.NetClientChat;
-import battleship.netmessages.NetClientDisconnected;
-import battleship.netmessages.NetClientHitMiss;
-import battleship.netmessages.NetClientOpponentJoin;
-import battleship.netmessages.NetClientOpponentStrike;
-import battleship.netmessages.NetClientTurn;
-import battleship.netmessages.NetServerConnect;
+import battleship.netmessages.server.NetServerConnect;
 
-class NetConnection implements MessageToClient {
+class NetConnection {
     private Socket socket;
     private Thread inThread, outThread;
     private InputRunnable inputRunnable;
     private BlockingQueue<MessageNetClient> outputQueue;
     private NetMatchHandle matchHandle;
+    private NetConnectionM2C m2c;
 
     public NetConnection(Socket socket, NetMatchmaker matchmaker)
     {
         this.socket = socket;
+        this.outputQueue = new LinkedBlockingQueue<>();
         this.matchHandle = new NetMatchHandle(matchmaker, this);
+        this.m2c = new NetConnectionM2C(outputQueue);
     }
     
     public void start()
     {
-        outputQueue = new LinkedBlockingQueue<>();
-
         inputRunnable = new InputRunnable(socket, matchHandle);
         inThread = new Thread(inputRunnable,
                               matchHandle.getID() + " Input");
@@ -69,46 +62,10 @@ class NetConnection implements MessageToClient {
         inThread.join();
         outThread.join();
     }
-
-    @Override
-    public void opponentJoin(String name) {
-        enqueueClientMessage(new NetClientOpponentJoin(name));
-    }
-
-    @Override
-    public void disconnected(boolean opponentLeft) {
-        enqueueClientMessage(new NetClientDisconnected(opponentLeft));
-    }
-
-    @Override
-    public void turn(boolean yourTurn) {
-        enqueueClientMessage(new NetClientTurn(yourTurn));
-    }
-
-    @Override
-    public void chat(String message, Date date) {
-        enqueueClientMessage(new NetClientChat(message, date));
-    }
-
-    @Override
-    public void hitMiss(boolean hit) {
-        enqueueClientMessage(new NetClientHitMiss(hit));
-    }
-
-    @Override
-    public void opponentStrike(int x, int y) {
-        enqueueClientMessage(new NetClientOpponentStrike(x, y));
-    }
-
-    @Override
-    public void gameComplete(boolean youWin) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    private void enqueueClientMessage(MessageNetClient msg)
+    
+    public MessageToClient getMessageToClient()
     {
-        outputQueue.add(msg);
+        return m2c;
     }
 }
 
@@ -139,8 +96,13 @@ class NetMatchHandle {
     }
 }
 
-class InputRunnable implements Runnable {   
-    class InputMessageRunnable implements Runnable {
+class InputRunnable implements Runnable {
+    /** A separate message thread that reads from a BlockingQueue.
+     * We need this so that only socket reads can block this thread.
+     * Otherwise, we can't know if the socket closes if something else
+     * (such as wait()) blocks this thread.
+     */
+    private class InputMessageRunnable implements Runnable {
         @Override
         public void run()
         {
@@ -178,11 +140,6 @@ class InputRunnable implements Runnable {
     @Override
     public void run()
     {
-        /* start a separate message thread that reads from a BlockingQueue
-         * we need this so that only socket reads can block this thread.
-         * otherwise, we can't know if the socket closes if something else
-         * (such as wait()) blocks this thread.
-         */
         Thread messageThread = new Thread(new InputMessageRunnable());
         messageThread.start();
         
@@ -201,7 +158,6 @@ class InputRunnable implements Runnable {
         } catch (IOException e) {
             System.err.println("Server IO error (" + socket.getInetAddress() + "): " + e);
         } catch (ClassNotFoundException e) {
-            // this is a bad thing to happen
             e.printStackTrace();
         } catch (ClassCastException e) {
             // might happen if read object is of the wrong class type
@@ -216,6 +172,7 @@ class InputRunnable implements Runnable {
         // tell the message thread to stop taking from the queue and to die
         messageThread.interrupt();
         
+        // wait to die
         try {
             messageThread.join();
         } catch (InterruptedException e) {}
@@ -251,8 +208,9 @@ class OutputRunnable implements Runnable {
         } catch (EOFException e) {
             // connection has ended
         } catch (IOException e) {
+            e.printStackTrace();
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
+            Thread.currentThread().interrupt();
         }
     }
 }

@@ -3,6 +3,48 @@ package battleship.logic;
 import java.util.Date;
 
 public class Game {    
+    class GameState {
+        private PlayerState ps1, ps2;
+        
+        public GameState(MessageToClient m2c_p1, MessageToClient m2c_p2,
+                         Player p1, Player p2)
+        {
+            ps1 = new PlayerState(m2c_p1, p1);
+            ps2 = new PlayerState(m2c_p2, p2);
+            
+            ps1.m2s = new PlayerInput(this, ps1, ps2);
+            ps2.m2s = new PlayerInput(this, ps2, ps1);
+        }
+        
+        public void configureFleet(ShipConfiguration ships, PlayerState p)
+        {
+            p.ships = ships;
+            
+            if (ps1.ships != null && ps2.ships != null) {
+                // both players' fleets are configured
+                startFirstTurn();
+            }
+        }
+        
+        public MessageToServer getMessageToServer(int playerNumber)
+        {
+            if (playerNumber == 0) {
+                return ps1.m2s;
+            } else {
+                return ps2.m2s;
+            }
+        }
+        
+        private void startFirstTurn()
+        {
+            // randomly select whose turn is first
+            boolean player1 = Math.random() > 0.5;
+            
+            ps1.m2c.turn(player1);
+            ps2.m2c.turn(!player1);
+        }
+    }
+
     private GameState gameState;
 
     public Game(MessageToClient m2c_p1, MessageToClient m2c_p2,
@@ -32,56 +74,14 @@ class PlayerState {
     }
 }
 
-class GameState {
-    private PlayerState ps1, ps2;
-    
-    public GameState(MessageToClient m2c_p1, MessageToClient m2c_p2,
-                     Player p1, Player p2)
-    {
-        ps1 = new PlayerState(m2c_p1, p1);
-        ps2 = new PlayerState(m2c_p2, p2);
-        
-        ps1.m2s = new PlayerInput(this, ps1, ps2);
-        ps2.m2s = new PlayerInput(this, ps2, ps1);
-    }
-    
-    public void configureFleet(ShipConfiguration ships, PlayerState p)
-    {
-        p.ships = ships;
-        
-        if (ps1.ships != null && ps2.ships != null) {
-            // both players' fleets are configured
-            startFirstTurn();
-        }
-    }
-    
-    public MessageToServer getMessageToServer(int playerNumber)
-    {
-        if (playerNumber == 0) {
-            return ps1.m2s;
-        } else {
-            return ps2.m2s;
-        }
-    }
-    
-    private void startFirstTurn()
-    {
-        // randomly select whose turn is first
-        boolean player1 = Math.random() > 0.5;
-        
-        ps1.m2c.turn(player1);
-        ps2.m2c.turn(!player1);
-    }
-}
-
 class PlayerInput implements MessageToServer {
-    private GameState game;
+    private Game.GameState gameState;
     private PlayerState you, opponent;
     
-    public PlayerInput(GameState game,
+    public PlayerInput(Game.GameState game,
                        PlayerState player_you, PlayerState player_opponent)
     {
-        this.game = game;
+        this.gameState = game;
         this.you = player_you;
         this.opponent = player_opponent;
     }
@@ -108,7 +108,7 @@ class PlayerInput implements MessageToServer {
     @Override
     public void configureFleet(ShipConfiguration shipConfiguration)
     {
-        game.configureFleet(shipConfiguration, you);
+        gameState.configureFleet(shipConfiguration, you);
     }
 
     @Override

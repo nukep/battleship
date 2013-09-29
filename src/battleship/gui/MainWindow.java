@@ -1,6 +1,5 @@
 package battleship.gui;
 
-import java.awt.CardLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -8,7 +7,6 @@ import java.awt.GridBagLayout;
 
 import javax.swing.*;
 
-import battleship.client.NetClientDispatchToSwing;
 import battleship.client.NetClientDispatcher;
 
 public class MainWindow {
@@ -95,10 +93,6 @@ public class MainWindow {
         joinPage.add(joinPanel, c);
         
         switchToJoinPage();
-        
-        // TODO - temporary, for testing purposes
-        String name = Integer.toString((int)(Math.random()*(1<<16)), 32);
-        joinCallback.join(name, "localhost", joinPanel);
     }
     
     public void show()
@@ -118,7 +112,7 @@ public class MainWindow {
         GameplayPanel gameplayPanel;
         gameplayPanel = new GameplayPanel();
         
-        M2C m2c = new M2C(this, gameplayPanel);
+        M2C m2c = new M2C(this, gameplayPanel.getUIUpdate());
         NetClientDispatcher dispatcher = new NetClientDispatchToSwing(m2c);
         c.start(dispatcher);
         

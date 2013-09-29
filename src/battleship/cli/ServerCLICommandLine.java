@@ -30,5 +30,7 @@ public class ServerCLICommandLine implements Runnable {
                 System.out.println("Invalid command");
             }
         }
+        
+        k.close();
     }
 }

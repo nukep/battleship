@@ -22,8 +22,113 @@ import battleship.logic.HitMissMap;
 import battleship.logic.MessageToServer;
 import battleship.logic.ShipConfiguration;
 
-public class GameplayPanel extends JPanel implements UIUpdate {
+public class GameplayPanel extends JPanel {
     private static final long serialVersionUID = 1L;
+    
+    class StatusPanel extends JPanel {
+        private static final long serialVersionUID = 1L;
+        
+        private JLabel statusLabel;
+        private WaitingPanel waitingPanel;
+        
+        public StatusPanel()
+        {
+            super(new GridBagLayout());
+            
+            int height = 48;
+            
+            GridBagConstraints c = new GridBagConstraints();
+            
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.gridx = 0;
+            c.gridy = 0;
+            
+            c.weightx = 1.0;
+            statusLabel = new JLabel();
+            statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            statusLabel.setFont(new Font(null, Font.BOLD, 20));
+            this.add(statusLabel, c);
+            
+            c.gridx++;
+            
+            c.weightx = 0.0;
+            waitingPanel = new WaitingPanel(height);
+            waitingPanel.setVisible(false);
+            this.add(waitingPanel, c);
+            
+            this.setPreferredSize(new Dimension(0, height));
+        }
+        
+        public void statusMessage(String message, boolean busy)
+        {
+            statusLabel.setText(message);
+            waitingPanel.setVisible(busy);
+        }
+        
+        public void statusClear()
+        {
+            statusLabel.setText("");
+            waitingPanel.setVisible(false);
+        }
+    }
+
+    private UIUpdate uiUpdate = new UIUpdate() {
+        @Override
+        public void update()
+        {
+            mapPanel.repaint();
+        }
+
+        @Override
+        public void setGameMode(GameMode gameMode)
+        {
+            mapPanel.setGameMode(gameMode);
+        }
+
+        @Override
+        public void clearGameMode()
+        {
+            mapPanel.clearGameMode();
+        }
+
+        @Override
+        public void statusMessage(String message, boolean busy)
+        {
+            statusPanel.statusMessage(message, busy);
+        }
+
+        @Override
+        public void statusClear()
+        {
+            statusPanel.statusClear();
+        }
+
+        @Override
+        public void appendChatbox(String message)
+        {
+            chatBox.append(message + "\n");
+            chatBox.updateUI();
+            
+            // scroll to the bottom of the text box
+            chatBox.setCaretPosition(chatBox.getDocument().getLength());
+        }
+
+        @Override
+        public void setTargetHitMiss(int x, int y, boolean hit)
+        {
+            targetHitMiss.setHitMiss(x, y, hit);
+            mapPanel.repaint();
+        }
+
+        @Override
+        public void setFleetHitMiss(int x, int y)
+        {
+            boolean hit = shipConfiguration.hitTest(x, y);
+            
+            fleetHitMiss.setHitMiss(x, y, hit);
+            mapPanel.repaint();
+        }
+    };
     
     private JTextArea chatBox;
     private JTextField chatTextField;
@@ -75,24 +180,34 @@ public class GameplayPanel extends JPanel implements UIUpdate {
         this.add(chatLinePanel, c);
         
 
-        GameMode gameMode = new ConfigureFleet(shipConfiguration, this,
+        GameMode gameMode = new ConfigureFleet(shipConfiguration, uiUpdate,
             new GameModeFinished() {
                 @Override
                 public void finished() {
                     mapPanel.clearGameMode();
-                    statusMessage("Waiting for other player", true);
+                    uiUpdate.statusMessage("Waiting for other player", true);
                     m2s.configureFleet(shipConfiguration);
                 }
             }
         );
         
         this.mapPanel.setGameMode(gameMode);
-        statusMessage("Hello! Place your ships on the board above to begin.", false);
+        uiUpdate.statusMessage("Hello! Place your ships on the board above to begin.", false);
     }
 
     public JButton getDefaultButton()
     {
         return chatSendButton;
+    }
+
+    public void setMessageToServer(MessageToServer m2s)
+    {
+        this.m2s = m2s;
+    }
+    
+    public UIUpdate getUIUpdate()
+    {
+        return uiUpdate;
     }
 
     private JPanel initChatlinePanel()
@@ -127,113 +242,5 @@ public class GameplayPanel extends JPanel implements UIUpdate {
         panel.add(chatSendButton, c);
         
         return panel;
-    }
-
-    public void setMessageToServer(MessageToServer m2s)
-    {
-        this.m2s = m2s;
-    }
-
-    @Override
-    public void update()
-    {
-        mapPanel.repaint();
-    }
-
-    @Override
-    public void setGameMode(GameMode gameMode)
-    {
-        mapPanel.setGameMode(gameMode);
-    }
-
-    @Override
-    public void clearGameMode()
-    {
-        mapPanel.clearGameMode();
-    }
-
-    @Override
-    public void statusMessage(String message, boolean busy)
-    {
-        statusPanel.statusMessage(message, busy);
-    }
-
-    @Override
-    public void statusClear()
-    {
-        statusPanel.statusClear();
-    }
-
-    @Override
-    public void appendChatbox(String message)
-    {
-        chatBox.append(message + "\n");
-        chatBox.updateUI();
-        
-        // scroll to the bottom of the text box
-        chatBox.setCaretPosition(chatBox.getDocument().getLength());
-    }
-
-    @Override
-    public void setTargetHitMiss(int x, int y, boolean hit)
-    {
-        targetHitMiss.setHitMiss(x, y, hit);
-        mapPanel.repaint();
-    }
-
-    @Override
-    public void setFleetHitMiss(int x, int y)
-    {
-        boolean hit = shipConfiguration.hitTest(x, y);
-        
-        fleetHitMiss.setHitMiss(x, y, hit);
-        mapPanel.repaint();
-    }
-}
-
-class StatusPanel extends JPanel {
-    private static final long serialVersionUID = 1L;
-    
-    private JLabel statusLabel;
-    private WaitingPanel waitingPanel;
-    
-    public StatusPanel()
-    {
-        super(new GridBagLayout());
-        
-        int height = 48;
-        
-        GridBagConstraints c = new GridBagConstraints();
-        
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 0;
-        
-        c.weightx = 1.0;
-        statusLabel = new JLabel();
-        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        statusLabel.setFont(new Font(null, Font.BOLD, 20));
-        this.add(statusLabel, c);
-        
-        c.gridx++;
-        
-        c.weightx = 0.0;
-        waitingPanel = new WaitingPanel(height);
-        waitingPanel.setVisible(false);
-        this.add(waitingPanel, c);
-        
-        this.setPreferredSize(new Dimension(0, height));
-    }
-    
-    public void statusMessage(String message, boolean busy)
-    {
-        statusLabel.setText(message);
-        waitingPanel.setVisible(busy);
-    }
-    
-    public void statusClear()
-    {
-        statusLabel.setText("");
-        waitingPanel.setVisible(false);
     }
 }

@@ -9,6 +9,11 @@ public interface MessageToClient {
      * @param name Name of your adversary
      */
     public void opponentJoin(String name);
+    /**
+     * The game has been disconnected.
+     * 
+     * @param opponentLeft True if the opponent decided to leave
+     */
     public void disconnected(boolean opponentLeft);
     /**
      * It is now someone's turn.

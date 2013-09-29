@@ -57,7 +57,9 @@ class NetGame extends Thread {
         synchronized (secondConnectionCondition) {
             conn2 = connection;
             player2 = player;
-            this.game = new Game(conn1, conn2, player1, player2);
+            this.game = new Game(conn1.getMessageToClient(),
+                                 conn2.getMessageToClient(),
+                                 player1, player2);
             secondConnectionCondition.notify();
         }
     }

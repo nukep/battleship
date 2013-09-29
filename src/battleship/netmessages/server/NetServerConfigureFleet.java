@@ -1,10 +1,11 @@
-package battleship.netmessages;
+package battleship.netmessages.server;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
 import battleship.logic.MessageToServer;
 import battleship.logic.ShipConfiguration;
+import battleship.netmessages.MessageNetServer;
 
 public class NetServerConfigureFleet implements MessageNetServer {
     private static final long serialVersionUID = 1L;

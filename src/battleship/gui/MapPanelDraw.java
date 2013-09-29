@@ -22,6 +22,16 @@ public class MapPanelDraw {
         this.active = active;
     }
 
+    public void color(int r, int g, int b)
+    {
+        g2d.setColor(new Color(r, g, b));
+    }
+    
+    public void color(int r, int g, int b, int a)
+    {
+        g2d.setColor(new Color(r, g, b, a));
+    }
+
     public void square(int x, int y, double inset)
     {
         double px = (x+inset) / grid_columns;
@@ -29,7 +39,7 @@ public class MapPanelDraw {
         double qx = (x+1-inset) / grid_columns;
         double qy = (y+1-inset) / grid_rows;
         
-        Coord[] c = new Coord[4];
+        MapTransform.Coord[] c = new MapTransform.Coord[4];
         c[0] = tr.transform(px, py);
         c[1] = tr.transform(qx, py);
         c[2] = tr.transform(qx, qy);
@@ -73,7 +83,7 @@ public class MapPanelDraw {
         
         // draw column lines (vertical-ish)
         for (int i = 0; i < grid_columns + 1; i++) {
-            Coord a, b;
+            MapTransform.Coord a, b;
             a = tr.transform((double)i / grid_columns, 0);
             b = tr.transform((double)i / grid_columns, 1);
             
@@ -83,7 +93,7 @@ public class MapPanelDraw {
         
         // draw row lines (horizontal)
         for (int i = 0; i < grid_rows + 1; i++) {
-            Coord a, b;
+            MapTransform.Coord a, b;
             a = tr.transform(0, (double)i / grid_rows);
             b = tr.transform(1, (double)i / grid_rows);
             
@@ -140,15 +150,15 @@ class PathTransform {
     
     public void moveTo(double x, double y)
     {
-        Coord c = tr.transform((x + translate_x) / columns,
-                               (y + translate_y) / rows);
+        MapTransform.Coord c;
+        c = tr.transform((x + translate_x) / columns, (y + translate_y) / rows);
         path.moveTo(c.x, c.y);
     }
     
     public void lineTo(double x, double y)
     {
-        Coord c = tr.transform((x + translate_x) / columns,
-                               (y + translate_y) / rows);
+        MapTransform.Coord c;
+        c = tr.transform((x + translate_x) / columns, (y + translate_y) / rows);
         path.lineTo(c.x, c.y);
     }
     

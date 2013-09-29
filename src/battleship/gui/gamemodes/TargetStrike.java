@@ -1,6 +1,5 @@
 package battleship.gui.gamemodes;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 
 import battleship.gui.MapPanelDraw;
@@ -33,7 +32,7 @@ public class TargetStrike implements GameMode {
     public void draw(Graphics2D g2d, MapPanelDraw target, MapPanelDraw fleet)
     {
         if (hover) {
-            g2d.setColor(new Color(0,0,0,64));
+            target.color(0, 0, 0, 64);
             target.square(target_x, target_y, 0.0);
         }
     }

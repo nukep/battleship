@@ -1,7 +1,8 @@
-package battleship.client;
+package battleship.gui;
 
 import javax.swing.SwingUtilities;
 
+import battleship.client.NetClientDispatcher;
 import battleship.logic.MessageToClient;
 import battleship.netmessages.MessageNetClient;
 
@@ -10,7 +11,7 @@ import battleship.netmessages.MessageNetClient;
  * Swing's Event Dispatcher thread.
  * 
  * This is necessary because the messages are used to further access
- * Swing components, .
+ * Swing components.
  *
  */
 public class NetClientDispatchToSwing implements NetClientDispatcher {
