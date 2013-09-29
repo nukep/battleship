@@ -4,7 +4,10 @@ import java.util.Date;
 
 import javax.swing.JOptionPane;
 
+import battleship.gui.gamemodes.GameModeFinished;
+import battleship.gui.gamemodes.TargetStrike;
 import battleship.logic.MessageToClient;
+import battleship.logic.MessageToServer;
 
 /**
  * The Swing client's MessageToClient implementation.
@@ -14,50 +17,85 @@ import battleship.logic.MessageToClient;
  */
 public class M2C implements MessageToClient {
     private MainWindow mainWindow;
-    private GameplayPanel gameplay;
+    private MessageToServer m2s;
+    private UIUpdate uiUpdate;
+    private TargetStrike targetStrike;
 
-    public M2C(MainWindow mainWindow, GameplayPanel gameplay)
+    public M2C(MainWindow mainWindow, UIUpdate uiUpdate)
     {
         this.mainWindow = mainWindow;
-        this.gameplay = gameplay;
+        this.uiUpdate = uiUpdate;
+        this.targetStrike = new TargetStrike(uiUpdate, new GameModeFinished() {
+            @Override
+            public void finished()
+            {
+                int x = M2C.this.targetStrike.getX();
+                int y = M2C.this.targetStrike.getY();
+                
+                M2C.this.uiUpdate.clearGameMode();
+                m2s.strikeSquare(x, y);
+            }
+        });
     }
+    
     @Override
     public void opponentJoin(String name) {
-        gameplay.appendChatbox(name + " joined the game!");
+        uiUpdate.appendChatbox(name + " joined the game!");
     }
 
     @Override
     public void disconnected(boolean opponentLeft) {
-        JOptionPane.showMessageDialog(null, "Game disconnected");
+        String reason;
+        
+        reason = opponentLeft ? "Opponent left" : "Lost connection";
+        
+        JOptionPane.showMessageDialog(null, "Game disconnected - " + reason);
         mainWindow.switchToJoinPage();
     }
 
     @Override
     public void turn(boolean yourTurn) {
-        // TODO Auto-generated method stub
-        
+        if (yourTurn) {
+            uiUpdate.setGameMode(targetStrike);
+            uiUpdate.statusMessage("Your turn", false);
+        } else {
+            uiUpdate.clearGameMode();
+            uiUpdate.statusMessage("Opponent's turn", true);
+        }
     }
 
     @Override
     public void chat(String message, Date date) {
-        gameplay.appendChatbox(message);
+        uiUpdate.appendChatbox(message);
     }
 
     @Override
     public void hitMiss(boolean hit) {
-        // TODO Auto-generated method stub
+        String message;
         
+        int x = targetStrike.getX();
+        int y = targetStrike.getY();
+        
+        message = String.format("%s! Opponent's turn", hit?"Hit":"Miss");
+        uiUpdate.clearGameMode();
+        uiUpdate.statusMessage(message, true);
+        uiUpdate.setTargetHitMiss(x, y, hit);
     }
 
     @Override
     public void opponentStrike(int x, int y) {
-        // TODO Auto-generated method stub
-        
+        uiUpdate.setGameMode(targetStrike);
+        uiUpdate.statusMessage(String.format("%d x %d. Your turn", x, y), false);
+        uiUpdate.setFleetHitMiss(x, y);
     }
 
     @Override
     public void gameComplete(boolean youWin) {
         // TODO Auto-generated method stub
         
+    }
+
+    public void setMessageToServer(MessageToServer m2s) {
+        this.m2s = m2s;
     }
 }

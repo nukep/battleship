@@ -13,7 +13,7 @@ import battleship.netmessages.MessageNetClient;
  * Swing components, .
  *
  */
-public class NetClientDispatchToSwing implements NetClientDispatchable {
+public class NetClientDispatchToSwing implements NetClientDispatcher {
     private MessageToClient m2c;
     
     public NetClientDispatchToSwing(MessageToClient m2c)

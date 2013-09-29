@@ -6,9 +6,13 @@ import java.util.List;
 
 public class ShipConfiguration {
     private List<Ship> ships;
+    private int columns;
+    private int rows;
     
-    public ShipConfiguration()
+    public ShipConfiguration(int columns, int rows)
     {
+        this.columns = columns;
+        this.rows = rows;
         ships = new LinkedList<>();
     }
     
@@ -19,76 +23,72 @@ public class ShipConfiguration {
     
     public boolean addShip(int x, int y, int length, boolean isHorizontal)
     {
+        if (!hitTestShip(x, y, length, isHorizontal)) {
+            // no ship here
+            ships.add(new Ship(x, y, length, isHorizontal));
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * Check if a ship can't be placed here without colliding with other ships.
+     * 
+     * @param x
+     * @param y
+     * @param length
+     * @param isHorizontal
+     * @return True if ship is in the way, false otherwise
+     */
+    public boolean hitTestShip(int x, int y, int length, boolean isHorizontal)
+    {
         for (int i = 0; i < length; i++) {
             int sx = x + (isHorizontal?i:0);
             int sy = y + (isHorizontal?0:i);
             if (hitTest(sx, sy)) {
-                // existing ship in the way
-                return false;
-            }
-        }
-        
-        ships.add(new Ship(x, y, length, isHorizontal));
-        
-        return true;
-    }
-    
-    private boolean hitTestShip(int x, int y, Ship s)
-    {
-        for (int i = 0; i < s.getLength(); i++) {
-            int sx = s.getX() + (s.isHorizontal()?i:0);
-            int sy = s.getY() + (s.isHorizontal()?0:i);
-            
-            if (sx == x && sy == y) {
+                // invalid/existing ship in the way
                 return true;
             }
         }
-        
-        // ship not there
         return false;
     }
     
-    private boolean hitTest(int x, int y)
+    /**
+     * Check if there's a ship at this location
+     * 
+     * @param x
+     * @param y
+     * @return True if ship exists/out of bounds, false otherwise
+     */
+    public boolean hitTest(int x, int y)
     {
+        if (x < 0 || y < 0 || x >= columns || y >= rows) {
+            // out of bounds
+            return true;
+        }
+        
         for (Ship s: ships) {
-            if (hitTestShip(x,  y, s)) {
-                return true;
+            for (int i = 0; i < s.getLength(); i++) {
+                int sx = s.getX() + (s.isHorizontal()?i:0);
+                int sy = s.getY() + (s.isHorizontal()?0:i);
+                
+                if (sx == x && sy == y) {
+                    // there's a ship here
+                    return true;
+                }
             }
         }
         return false;
     }
-}
 
-class Ship {
-    private int x, y;
-    private int length;
-    private boolean isHorizontal;
-    
-    public Ship(int x, int y, int length, boolean isHorizontal)
+    public int getColumns()
     {
-        this.x = x;
-        this.y = y;
-        this.length = length;
-        this.isHorizontal = isHorizontal;
+        return columns;
     }
 
-    public int getX()
+    public int getRows()
     {
-        return x;
-    }
-
-    public int getY()
-    {
-        return y;
-    }
-
-    public int getLength()
-    {
-        return length;
-    }
-
-    public boolean isHorizontal()
-    {
-        return isHorizontal;
+        return rows;
     }
 }

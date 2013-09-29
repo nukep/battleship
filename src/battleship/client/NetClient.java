@@ -11,21 +11,23 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import battleship.logic.MessageToClient;
 import battleship.logic.MessageToServer;
+import battleship.logic.ShipConfiguration;
 import battleship.netmessages.NetClientDisconnected;
 import battleship.netmessages.NetServerChat;
 import battleship.netmessages.MessageNetClient;
 import battleship.netmessages.MessageNetServer;
+import battleship.netmessages.NetServerConfigureFleet;
 import battleship.netmessages.NetServerConnect;
 import battleship.netmessages.NetServerStrike;
 
 public class NetClient implements MessageToServer {
     private Socket socket;
-    private NetClientDispatchable dispatcher;
+    private NetClientDispatcher dispatcher;
     private Thread inputThread, outputThread;
     
     private BlockingQueue<MessageNetServer> outputQueue;
     
-    public NetClient(Socket socket, NetClientDispatchable dispatcher)
+    public NetClient(Socket socket, NetClientDispatcher dispatcher)
     {
         this.socket = socket;
         this.dispatcher = dispatcher;
@@ -68,6 +70,12 @@ public class NetClient implements MessageToServer {
     }
 
     @Override
+    public void configureFleet(ShipConfiguration shipConfiguration)
+    {
+        enqueueServerMessage(new NetServerConfigureFleet(shipConfiguration));
+    }
+
+    @Override
     public void strikeSquare(int x, int y)
     {
         enqueueServerMessage(new NetServerStrike(x, y));
@@ -81,9 +89,9 @@ public class NetClient implements MessageToServer {
 
 class InputRunnable implements Runnable {
     private Socket socket;
-    private NetClientDispatchable dispatcher;
+    private NetClientDispatcher dispatcher;
 
-    public InputRunnable(Socket socket, NetClientDispatchable dispatcher)
+    public InputRunnable(Socket socket, NetClientDispatcher dispatcher)
     {
         this.socket = socket;
         this.dispatcher = dispatcher;

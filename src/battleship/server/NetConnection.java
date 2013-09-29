@@ -17,7 +17,10 @@ import battleship.netmessages.MessageNetClient;
 import battleship.netmessages.MessageNetServer;
 import battleship.netmessages.NetClientChat;
 import battleship.netmessages.NetClientDisconnected;
+import battleship.netmessages.NetClientHitMiss;
 import battleship.netmessages.NetClientOpponentJoin;
+import battleship.netmessages.NetClientOpponentStrike;
+import battleship.netmessages.NetClientTurn;
 import battleship.netmessages.NetServerConnect;
 
 class NetConnection implements MessageToClient {
@@ -79,8 +82,7 @@ class NetConnection implements MessageToClient {
 
     @Override
     public void turn(boolean yourTurn) {
-        // TODO Auto-generated method stub
-        
+        enqueueClientMessage(new NetClientTurn(yourTurn));
     }
 
     @Override
@@ -90,14 +92,12 @@ class NetConnection implements MessageToClient {
 
     @Override
     public void hitMiss(boolean hit) {
-        // TODO Auto-generated method stub
-        
+        enqueueClientMessage(new NetClientHitMiss(hit));
     }
 
     @Override
     public void opponentStrike(int x, int y) {
-        // TODO Auto-generated method stub
-        
+        enqueueClientMessage(new NetClientOpponentStrike(x, y));
     }
 
     @Override

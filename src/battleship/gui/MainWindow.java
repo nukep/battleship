@@ -8,6 +8,9 @@ import java.awt.GridBagLayout;
 
 import javax.swing.*;
 
+import battleship.client.NetClientDispatchToSwing;
+import battleship.client.NetClientDispatcher;
+
 public class MainWindow {
     private final class JoinConnect implements ConnectListener {
         private final BusyListener busy;
@@ -36,16 +39,10 @@ public class MainWindow {
             busy.unbusy();
         }
     }
-    
-    private static final String CARD_JOINPAGE = "joinpage";
-    private static final String CARD_GAMEPLAY = "gameplay";
 
     private JFrame frame;
     private JoinCallback joinCallback;
     private JoinPanel joinPanel;
-    private GameplayPanel gameplayPanel;
-    private M2C m2c;
-    
     
     public static void applySwingLookAndFeel()
     {
@@ -70,10 +67,6 @@ public class MainWindow {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         
-        gameplayPanel = new GameplayPanel();
-        
-        m2c = new M2C(this, gameplayPanel);
-        
         joinCallback = new JoinCallback() {
             @Override
             public void join(String playerName, String address,
@@ -84,15 +77,14 @@ public class MainWindow {
                 
                 busy.busy();
                 b = new JoinConnect(busy);
-                c = new Connect(playerName, address, b, m2c);
+                c = new Connect(playerName, address, b);
                 
                 new Thread(c).start();
             }
         };
         
         Container fc = frame.getContentPane();
-        
-        fc.setLayout(new CardLayout());
+        fc.setLayout(new GridBagLayout());
         
         JPanel joinPage = new JPanel(new GridBagLayout());
         
@@ -101,9 +93,6 @@ public class MainWindow {
         joinPanel = new JoinPanel(joinCallback);
         joinPanel.setPreferredSize(new Dimension(320, 240));
         joinPage.add(joinPanel, c);
-        
-        fc.add(joinPage, CARD_JOINPAGE);
-        fc.add(gameplayPanel, CARD_GAMEPLAY);
         
         switchToJoinPage();
         
@@ -119,19 +108,25 @@ public class MainWindow {
     
     public void switchToJoinPage()
     {
-        CardLayout l = (CardLayout)frame.getContentPane().getLayout();
-        l.show(frame.getContentPane(), CARD_JOINPAGE);
-        
+        frame.setContentPane(joinPanel);
         frame.getRootPane().setDefaultButton(joinPanel.getDefaultButton());
+        frame.revalidate();
     }
     
     public void switchToGameplay(Connect c)
     {
+        GameplayPanel gameplayPanel;
+        gameplayPanel = new GameplayPanel();
+        
+        M2C m2c = new M2C(this, gameplayPanel);
+        NetClientDispatcher dispatcher = new NetClientDispatchToSwing(m2c);
+        c.start(dispatcher);
+        
+        m2c.setMessageToServer(c.getMessageToServer());
         gameplayPanel.setMessageToServer(c.getMessageToServer());
-        
-        CardLayout l = (CardLayout)frame.getContentPane().getLayout();
-        l.show(frame.getContentPane(), CARD_GAMEPLAY);
-        
+
+        frame.setContentPane(gameplayPanel);
         frame.getRootPane().setDefaultButton(gameplayPanel.getDefaultButton());
+        frame.revalidate();
     }
 }

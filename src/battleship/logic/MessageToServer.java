@@ -13,6 +13,7 @@ public interface MessageToServer {
      * @param message
      */
     public void chat(String message);
+    public void configureFleet(ShipConfiguration shipConfiguration);
     /**
      * Strike one of the opponent's squares. It's now the opponent's turn.
      * 

@@ -2,50 +2,94 @@ package battleship.logic;
 
 import java.util.Date;
 
-public class Game {
-    private MessageToClient p1;
-    private MessageToClient p2;
-    
-    private PlayerInput m2s1, m2s2;
+public class Game {    
+    private GameState gameState;
 
     public Game(MessageToClient m2c_p1, MessageToClient m2c_p2,
                 Player p1, Player p2)
     {
-        this.p1 = m2c_p1;
-        this.p2 = m2c_p2;
+        this.gameState = new GameState(m2c_p1, m2c_p2, p1, p2);
+    }
+    
+    public MessageToServer getMessageToServer(int playerNumber)
+    {
+        return gameState.getMessageToServer(playerNumber);
+    }
+}
+
+class PlayerState {
+    public MessageToClient m2c;
+    public PlayerInput m2s;
+    
+    public Player player;
+    public ShipConfiguration ships;
+    public HitMissMap hitMiss;
+    
+    public PlayerState(MessageToClient m2c,  Player player)
+    {
+        this.m2c = m2c;
+        this.player = player;
+    }
+}
+
+class GameState {
+    private PlayerState ps1, ps2;
+    
+    public GameState(MessageToClient m2c_p1, MessageToClient m2c_p2,
+                     Player p1, Player p2)
+    {
+        ps1 = new PlayerState(m2c_p1, p1);
+        ps2 = new PlayerState(m2c_p2, p2);
         
-        m2s1 = new PlayerInput(m2c_p1, m2c_p2, p1, p2);
-        m2s2 = new PlayerInput(m2c_p2, m2c_p1, p2, p1);
+        ps1.m2s = new PlayerInput(this, ps1, ps2);
+        ps2.m2s = new PlayerInput(this, ps2, ps1);
+    }
+    
+    public void configureFleet(ShipConfiguration ships, PlayerState p)
+    {
+        p.ships = ships;
+        
+        if (ps1.ships != null && ps2.ships != null) {
+            // both players' fleets are configured
+            startFirstTurn();
+        }
     }
     
     public MessageToServer getMessageToServer(int playerNumber)
     {
         if (playerNumber == 0) {
-            return m2s1;
+            return ps1.m2s;
         } else {
-            return m2s2;
+            return ps2.m2s;
         }
+    }
+    
+    private void startFirstTurn()
+    {
+        // randomly select whose turn is first
+        boolean player1 = Math.random() > 0.5;
+        
+        ps1.m2c.turn(player1);
+        ps2.m2c.turn(!player1);
     }
 }
 
 class PlayerInput implements MessageToServer {
-    private MessageToClient you, opponent;
-    private Player player_you, player_opponent;
+    private GameState game;
+    private PlayerState you, opponent;
     
-    public PlayerInput(MessageToClient you, MessageToClient opponent,
-                       Player player_you, Player player_opponent)
+    public PlayerInput(GameState game,
+                       PlayerState player_you, PlayerState player_opponent)
     {
-        this.you = you;
-        this.opponent = opponent;
-        
-        this.player_you = player_you;
-        this.player_opponent = player_opponent;
+        this.game = game;
+        this.you = player_you;
+        this.opponent = player_opponent;
     }
     
     @Override
     public void connect(String name)
     {
-        opponent.opponentJoin(name);
+        opponent.m2c.opponentJoin(name);
     }
 
     @Override
@@ -54,17 +98,26 @@ class PlayerInput implements MessageToServer {
         Date now = new Date();
         String new_message;
         
-        new_message = String.format("%s: %s", player_you.getName(), message);
+        new_message = String.format("%s: %s", you.player.getName(), message);
         
         // send the chat message to yourself and your opponent
-        you.chat(new_message, now);
-        opponent.chat(new_message, now);
+        you.m2c.chat(new_message, now);
+        opponent.m2c.chat(new_message, now);
+    }
+
+    @Override
+    public void configureFleet(ShipConfiguration shipConfiguration)
+    {
+        game.configureFleet(shipConfiguration, you);
     }
 
     @Override
     public void strikeSquare(int x, int y)
     {
-        // TODO Auto-generated method stub
+        // check opponent's ship configuration
+        boolean hit = opponent.ships.hitTest(x, y);
         
+        you.m2c.hitMiss(hit);
+        opponent.m2c.opponentStrike(x, y);
     }
 }

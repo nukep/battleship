@@ -38,6 +38,7 @@ public interface MessageToClient {
      * 
      * @param x
      * @param y
+     * @param hit
      */
     public void opponentStrike(int x, int y);
     /**
