@@ -34,6 +34,8 @@ public class M2C implements MessageToClient {
                 
                 M2C.this.uiUpdate.clearGameMode();
                 m2s.strikeSquare(x, y);
+                
+                M2C.this.uiUpdate.statusMessage("", true);
             }
         });
     }
