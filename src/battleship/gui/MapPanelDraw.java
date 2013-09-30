@@ -1,25 +1,27 @@
 package battleship.gui;
 
 import java.awt.Color;
+import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 
 public class MapPanelDraw {
     private Graphics2D g2d;
     private MapTransform tr;
     private int grid_columns;
     private int grid_rows;
-    private boolean active;
+    private boolean fleet_board;
     
     public MapPanelDraw(Graphics2D g2d, MapTransform tr, int columns, int rows,
-                        boolean active)
+                        boolean fleet_board)
     {
         this.g2d = g2d;
         this.tr = tr;
         this.grid_columns = columns;
         this.grid_rows = rows;
-        this.active = active;
+        this.fleet_board = fleet_board;
     }
 
     public void color(int r, int g, int b)
@@ -57,29 +59,66 @@ public class MapPanelDraw {
         g2d.fill(dp);
     }
     
+    private Color darker(Color color, double p)
+    {
+        int r, g, b;
+        float[] hsb = new float[3];
+        
+        r = color.getRed();
+        g = color.getGreen();
+        b = color.getBlue();
+        
+        Color.RGBtoHSB(r, g, b, hsb);
+        
+        // lower brightness
+        hsb[2] *= 1-p;
+        
+        return Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
+    }
+    
+    private void grid_outline()
+    {
+        double outset = 1.0/64;
+        g2d.setColor(Color.black);
+        PathTransform pt = new PathTransform(tr, 1, 1);
+        pt.moveTo(-outset, -outset);
+        pt.lineTo(1+outset, -outset);
+        pt.lineTo(1+outset, 1+outset);
+        pt.lineTo(-outset, 1+outset);
+        pt.closePath();
+        
+        g2d.fill(pt.getPath());
+    }
+    
     public void grid()
     {
         PathTransform pt = new PathTransform(tr, 1, 1);
         
-        Color bgcolor, fgcolor;
-        bgcolor = new Color(224, 224, 255);
-        fgcolor = new Color(64, 64, 128);
+        Color bgcolor;
         
-        if (!active) {
-            bgcolor = bgcolor.darker();
-            //fgcolor = fgcolor.darker();
+        if (fleet_board) {
+            bgcolor = new Color(224, 224, 255);
+        } else {
+            bgcolor = new Color(255, 224, 192);
         }
         
-        g2d.setColor(bgcolor);
+        grid_outline();
         
         pt.moveTo(0, 0);
         pt.lineTo(1, 0);
         pt.lineTo(1, 1);
         pt.lineTo(0, 1);
         pt.closePath();
+        MapTransform.Coord top, bottom;
+        top = tr.transform(0, 0);
+        bottom = tr.transform(0, 1);
+        GradientPaint gp;
+        gp = new GradientPaint(new Point2D.Double(0, top.y), bgcolor,
+                               new Point2D.Double(0, bottom.y), darker(bgcolor, 0.1));
+        g2d.setPaint(gp);
         g2d.fill(pt.getPath());
         
-        g2d.setColor(fgcolor);
+        g2d.setColor(new Color(0,0,0, 92));
         
         // draw column lines (vertical-ish)
         for (int i = 0; i < grid_columns + 1; i++) {

@@ -40,11 +40,16 @@ public class ConfigureFleet implements GameMode {
     @Override
     public void draw(Graphics2D g2d, MapPanelDraw target, MapPanelDraw fleet)
     {
+        int ascent = g2d.getFontMetrics().getAscent();
         int y = 40;
         target.color(0, 0, 0);
+        g2d.drawString("LMB - Place ship", 10, y);
+        y += ascent;
+        g2d.drawString("RMB - Rotate ship", 10, y);
+        y += ascent*2;
+
         g2d.drawString("Remaining ships", 10, y);
-        
-        y += 20;
+        y += ascent;
         
         int shipHeight = 20;
         int i = 0;

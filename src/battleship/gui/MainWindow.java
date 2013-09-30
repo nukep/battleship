@@ -40,7 +40,7 @@ public class MainWindow {
 
     private JFrame frame;
     private JoinCallback joinCallback;
-    private JoinPanel joinPanel;
+    private WelcomePanel welcomePage;
     
     public static void applySwingLookAndFeel()
     {
@@ -84,15 +84,9 @@ public class MainWindow {
         Container fc = frame.getContentPane();
         fc.setLayout(new GridBagLayout());
         
-        JPanel joinPage = new JPanel(new GridBagLayout());
+        welcomePage = new WelcomePanel(joinCallback);
         
-        GridBagConstraints c = new GridBagConstraints();
-        
-        joinPanel = new JoinPanel(joinCallback);
-        joinPanel.setPreferredSize(new Dimension(320, 240));
-        joinPage.add(joinPanel, c);
-        
-        switchToJoinPage();
+        switchToWelcomePage();
     }
     
     public void show()
@@ -100,10 +94,10 @@ public class MainWindow {
         frame.setVisible(true);
     }
     
-    public void switchToJoinPage()
+    public void switchToWelcomePage()
     {
-        frame.setContentPane(joinPanel);
-        frame.getRootPane().setDefaultButton(joinPanel.getDefaultButton());
+        frame.setContentPane(welcomePage);
+        frame.getRootPane().setDefaultButton(welcomePage.getDefaultButton());
         frame.revalidate();
     }
     

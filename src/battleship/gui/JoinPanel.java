@@ -45,13 +45,13 @@ public class JoinPanel extends JPanel implements BusyListener {
     
     public JoinPanel(final JoinCallback joinCallback)
     {
+        super(new GridBagLayout());
+        
         playerNameField = new JTextField();
         addressField = new JTextField("localhost");
 
         joinButton = new JButton("Join");
         joinButton.addActionListener(new JoinButtonListener(joinCallback));
-        
-        setLayout(new GridBagLayout());
         
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;

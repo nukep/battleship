@@ -192,7 +192,7 @@ public class GameplayPanel extends JPanel {
         );
         
         this.mapPanel.setGameMode(gameMode);
-        uiUpdate.statusMessage("Hello! Place your ships on the board above to begin.", false);
+        uiUpdate.statusMessage("Hello! Place your ships on the blue board above to begin.", false);
     }
 
     public JButton getDefaultButton()

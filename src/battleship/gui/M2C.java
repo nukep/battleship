@@ -52,7 +52,7 @@ public class M2C implements MessageToClient {
         reason = opponentLeft ? "Opponent left" : "Lost connection";
         
         JOptionPane.showMessageDialog(null, "Game disconnected - " + reason);
-        mainWindow.switchToJoinPage();
+        mainWindow.switchToWelcomePage();
     }
 
     @Override

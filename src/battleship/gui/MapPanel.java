@@ -147,6 +147,7 @@ public class MapPanel extends JPanel {
         
         this.grid_columns = shipConfiguration.getColumns();
         this.grid_rows = shipConfiguration.getRows();
+        calculateTransforms(getWidth(), getHeight());
         
         addMouseListener(new Mouse());
         addMouseMotionListener(new MouseMotion());
@@ -179,6 +180,8 @@ public class MapPanel extends JPanel {
         
         drawTarget.grid();
         drawFleet.grid();
+        
+        g2d.setColor(new Color(64, 64, 128));
         
         for (Ship s: shipConfiguration.getShips()) {
             drawFleet.ship(s.getX(), s.getY(), s.getLength(), s.isHorizontal());
@@ -218,10 +221,10 @@ public class MapPanel extends JPanel {
             
             switch (state) {
             case HitMissMap.HIT:
-                color = new Color(255, 0, 0, 128);
+                color = new Color(255, 0, 0, 192);
                 break;
             case HitMissMap.MISS:
-                color = new Color(255, 255, 255, 128);
+                color = new Color(0, 0, 0, 192);
                 break;
             }
             
@@ -250,8 +253,8 @@ public class MapPanel extends JPanel {
         double x_off = (width - box_w*scale)/2;
         double y_off = 0.0;
         
-        double[] target_arr = {80, 420, 100, 400, 10, 290};
-        double[] fleet_arr  = {100, 400, 10, 490, 300, 570};
+        double[] target_arr = {80, 420, 100, 400, 10, 300};
+        double[] fleet_arr  = {120, 380, 10, 490, 330, 570};
         
         int i;
         for (i = 0; i < 4; i++) {
