@@ -3,7 +3,7 @@ package battleship.server;
 import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 
-import battleship.logic.MessageToClient;
+import battleship.common.MessageToClient;
 import battleship.netmessages.MessageNetClient;
 import battleship.netmessages.client.*;
 

@@ -1,7 +1,8 @@
 package battleship.netmessages;
 
 import java.io.Serializable;
-import battleship.logic.MessageToServer;
+
+import battleship.common.MessageToServer;
 
 /**
  * Client -> Server

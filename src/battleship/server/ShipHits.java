@@ -1,4 +1,7 @@
-package battleship.logic;
+package battleship.server;
+
+import battleship.common.Ship;
+import battleship.common.ShipConfiguration;
 
 public class ShipHits {
     private boolean[][] shipHits;

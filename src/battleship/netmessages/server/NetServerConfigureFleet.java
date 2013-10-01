@@ -3,8 +3,8 @@ package battleship.netmessages.server;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import battleship.logic.MessageToServer;
-import battleship.logic.ShipConfiguration;
+import battleship.common.MessageToServer;
+import battleship.common.ShipConfiguration;
 import battleship.netmessages.MessageNetServer;
 
 public class NetServerConfigureFleet implements MessageNetServer {
@@ -35,7 +35,7 @@ public class NetServerConfigureFleet implements MessageNetServer {
         this.rows = shipConfiguration.getRows();
         this.ships = new ArrayList<>();
         
-        for (battleship.logic.Ship sh: shipConfiguration.getShips()) {
+        for (battleship.common.Ship sh: shipConfiguration.getShips()) {
             Ship ship = new Ship();
             ship.x = sh.getX();
             ship.y = sh.getY();

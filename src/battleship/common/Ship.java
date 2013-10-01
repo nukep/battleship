@@ -1,4 +1,4 @@
-package battleship.logic;
+package battleship.common;
 
 public class Ship {
     private int x, y;

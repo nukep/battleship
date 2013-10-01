@@ -1,6 +1,6 @@
 package battleship.netmessages.client;
 
-import battleship.logic.MessageToClient;
+import battleship.common.MessageToClient;
 import battleship.netmessages.MessageNetClient;
 
 public class NetClientGameComplete implements MessageNetClient {

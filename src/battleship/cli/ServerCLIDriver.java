@@ -2,7 +2,7 @@ package battleship.cli;
 
 import java.io.IOException;
 
-import battleship.logic.NetConstants;
+import battleship.common.NetConstants;
 import battleship.server.NetServer;
 
 public class ServerCLIDriver {

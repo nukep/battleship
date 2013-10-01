@@ -16,12 +16,12 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import battleship.client.HitMissMap;
 import battleship.clientgui.gamemodes.ConfigureFleet;
 import battleship.clientgui.gamemodes.GameMode;
 import battleship.clientgui.gamemodes.GameModeFinished;
-import battleship.logic.HitMissMap;
-import battleship.logic.MessageToServer;
-import battleship.logic.ShipConfiguration;
+import battleship.common.MessageToServer;
+import battleship.common.ShipConfiguration;
 
 public class GameplayPanel extends JPanel {
     private static final long serialVersionUID = 1L;

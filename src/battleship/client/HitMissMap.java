@@ -1,4 +1,4 @@
-package battleship.logic;
+package battleship.client;
 
 import java.util.Iterator;
 

@@ -6,8 +6,8 @@ import javax.swing.JOptionPane;
 
 import battleship.clientgui.gamemodes.GameModeFinished;
 import battleship.clientgui.gamemodes.TargetStrike;
-import battleship.logic.MessageToClient;
-import battleship.logic.MessageToServer;
+import battleship.common.MessageToClient;
+import battleship.common.MessageToServer;
 
 /**
  * The Swing client's MessageToClient implementation.

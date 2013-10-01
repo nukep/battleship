@@ -6,7 +6,7 @@ import java.util.List;
 
 import battleship.clientgui.MapPanelDraw;
 import battleship.clientgui.UIUpdate;
-import battleship.logic.ShipConfiguration;
+import battleship.common.ShipConfiguration;
 
 public class ConfigureFleet implements GameMode {
     private int ship_x, ship_y;

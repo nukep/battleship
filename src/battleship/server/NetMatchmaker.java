@@ -3,7 +3,7 @@ package battleship.server;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import battleship.logic.Player;
+import battleship.common.Player;
 
 class NetMatchmaker {
     private LinkedList<NetGame> activeGames;

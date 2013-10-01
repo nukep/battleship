@@ -3,7 +3,7 @@ package battleship.clientgui;
 import javax.swing.SwingUtilities;
 
 import battleship.client.NetClientDispatcher;
-import battleship.logic.MessageToClient;
+import battleship.common.MessageToClient;
 import battleship.netmessages.MessageNetClient;
 
 /**

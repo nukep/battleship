@@ -10,10 +10,10 @@ import java.util.Iterator;
 
 import javax.swing.JPanel;
 
+import battleship.client.HitMissMap;
 import battleship.clientgui.gamemodes.GameMode;
-import battleship.logic.HitMissMap;
-import battleship.logic.Ship;
-import battleship.logic.ShipConfiguration;
+import battleship.common.Ship;
+import battleship.common.ShipConfiguration;
 
 public class MapPanel extends JPanel {
     private static class GridCoord {

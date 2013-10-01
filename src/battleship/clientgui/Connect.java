@@ -5,8 +5,8 @@ import java.net.Socket;
 
 import battleship.client.NetClient;
 import battleship.client.NetClientDispatcher;
-import battleship.logic.MessageToServer;
-import battleship.logic.NetConstants;
+import battleship.common.MessageToServer;
+import battleship.common.NetConstants;
 
 public class Connect implements Runnable {
     private String name;

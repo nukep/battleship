@@ -9,8 +9,8 @@ import java.net.SocketException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import battleship.logic.MessageToServer;
-import battleship.logic.ShipConfiguration;
+import battleship.common.MessageToServer;
+import battleship.common.ShipConfiguration;
 import battleship.netmessages.*;
 import battleship.netmessages.client.NetClientDisconnected;
 import battleship.netmessages.server.*;

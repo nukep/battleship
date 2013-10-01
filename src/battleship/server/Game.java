@@ -1,6 +1,11 @@
-package battleship.logic;
+package battleship.server;
 
 import java.util.Date;
+
+import battleship.common.MessageToClient;
+import battleship.common.MessageToServer;
+import battleship.common.Player;
+import battleship.common.ShipConfiguration;
 
 public class Game {    
     class GameState {

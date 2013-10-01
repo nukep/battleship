@@ -3,9 +3,8 @@ package battleship.server;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import battleship.logic.Game;
-import battleship.logic.MessageToServer;
-import battleship.logic.Player;
+import battleship.common.MessageToServer;
+import battleship.common.Player;
 import battleship.netmessages.MessageNetServer;
 
 class NetGame extends Thread {

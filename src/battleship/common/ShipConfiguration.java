@@ -1,4 +1,4 @@
-package battleship.logic;
+package battleship.common;
 
 import java.util.Collections;
 import java.util.LinkedList;
