@@ -1,4 +1,4 @@
-package battleship.gui;
+package battleship.clientgui;
 
 /**
  * Used to signal the UI that a busy operation is undergoing.

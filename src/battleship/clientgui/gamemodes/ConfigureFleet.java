@@ -1,11 +1,11 @@
-package battleship.gui.gamemodes;
+package battleship.clientgui.gamemodes;
 
 import java.awt.Graphics2D;
 import java.util.LinkedList;
 import java.util.List;
 
-import battleship.gui.MapPanelDraw;
-import battleship.gui.UIUpdate;
+import battleship.clientgui.MapPanelDraw;
+import battleship.clientgui.UIUpdate;
 import battleship.logic.ShipConfiguration;
 
 public class ConfigureFleet implements GameMode {

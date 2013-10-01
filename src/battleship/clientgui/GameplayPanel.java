@@ -1,4 +1,4 @@
-package battleship.gui;
+package battleship.clientgui;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -16,9 +16,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import battleship.gui.gamemodes.ConfigureFleet;
-import battleship.gui.gamemodes.GameMode;
-import battleship.gui.gamemodes.GameModeFinished;
+import battleship.clientgui.gamemodes.ConfigureFleet;
+import battleship.clientgui.gamemodes.GameMode;
+import battleship.clientgui.gamemodes.GameModeFinished;
 import battleship.logic.HitMissMap;
 import battleship.logic.MessageToServer;
 import battleship.logic.ShipConfiguration;

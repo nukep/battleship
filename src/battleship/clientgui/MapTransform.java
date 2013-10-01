@@ -1,4 +1,4 @@
-package battleship.gui;
+package battleship.clientgui;
 
 /**
  * Responsible for transforming 3d plane coordinates (local) to and from

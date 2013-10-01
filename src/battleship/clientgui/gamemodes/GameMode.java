@@ -1,8 +1,8 @@
-package battleship.gui.gamemodes;
+package battleship.clientgui.gamemodes;
 
 import java.awt.Graphics2D;
 
-import battleship.gui.MapPanelDraw;
+import battleship.clientgui.MapPanelDraw;
 
 public interface GameMode {
     public void draw(Graphics2D g2d, MapPanelDraw target, MapPanelDraw fleet);

@@ -1,4 +1,4 @@
-package battleship.gui;
+package battleship.clientgui;
 
 public class ClientDriver {
     public static void main(String[] args)

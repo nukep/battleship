@@ -1,9 +1,9 @@
-package battleship.gui.gamemodes;
+package battleship.clientgui.gamemodes;
 
 import java.awt.Graphics2D;
 
-import battleship.gui.MapPanelDraw;
-import battleship.gui.UIUpdate;
+import battleship.clientgui.MapPanelDraw;
+import battleship.clientgui.UIUpdate;
 
 public class TargetStrike implements GameMode {
     private UIUpdate update;

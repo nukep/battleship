@@ -1,4 +1,4 @@
-package battleship.gui;
+package battleship.clientgui;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -10,7 +10,7 @@ import java.util.Iterator;
 
 import javax.swing.JPanel;
 
-import battleship.gui.gamemodes.GameMode;
+import battleship.clientgui.gamemodes.GameMode;
 import battleship.logic.HitMissMap;
 import battleship.logic.Ship;
 import battleship.logic.ShipConfiguration;

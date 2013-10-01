@@ -1,4 +1,4 @@
-package battleship.gui;
+package battleship.clientgui;
 
 import java.awt.Container;
 import java.awt.GridBagLayout;

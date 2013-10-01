@@ -1,11 +1,11 @@
-package battleship.gui;
+package battleship.clientgui;
 
 import java.util.Date;
 
 import javax.swing.JOptionPane;
 
-import battleship.gui.gamemodes.GameModeFinished;
-import battleship.gui.gamemodes.TargetStrike;
+import battleship.clientgui.gamemodes.GameModeFinished;
+import battleship.clientgui.gamemodes.TargetStrike;
 import battleship.logic.MessageToClient;
 import battleship.logic.MessageToServer;
 
