@@ -72,13 +72,15 @@ public class M2C implements MessageToClient {
     }
 
     @Override
-    public void hitMiss(boolean hit) {
-        String message;
+    public void hitMiss(boolean hit, boolean shipSunk) {
+        String message, status;
         
         int x = targetStrike.getX();
         int y = targetStrike.getY();
         
-        message = String.format("%s! Opponent's turn", hit?"Hit":"Miss");
+        status = hit ? (shipSunk ? "You sunk their ship":"Hit"):"Miss";
+        message = status + "! Opponent's turn";
+        
         uiUpdate.clearGameMode();
         uiUpdate.statusMessage(message, true);
         uiUpdate.setTargetHitMiss(x, y, hit);

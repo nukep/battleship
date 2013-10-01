@@ -37,8 +37,8 @@ class NetConnectionM2C implements MessageToClient
     }
 
     @Override
-    public void hitMiss(boolean hit) {
-        queue.add(new NetClientHitMiss(hit));
+    public void hitMiss(boolean hit, boolean shipSunk) {
+        queue.add(new NetClientHitMiss(hit, shipSunk));
     }
 
     @Override

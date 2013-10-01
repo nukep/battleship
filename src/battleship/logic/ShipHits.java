@@ -28,9 +28,9 @@ public class ShipHits {
         if (loc != null) {
             shipHits[loc.index][loc.offset] = true;
             
-            boolean sunk = false;
+            boolean sunk = true;
             for (boolean hit: shipHits[loc.index]) {
-                sunk |= hit;
+                sunk &= hit;
             }
             
             return sunk;

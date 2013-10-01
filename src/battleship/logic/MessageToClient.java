@@ -36,8 +36,9 @@ public interface MessageToClient {
      * Opponent (server) responds whether the last strike hit or miss.
      * 
      * @param hit True on hit, false on miss
+     * @param shipSunk True if you sunk their ship
      */
-    public void hitMiss(boolean hit);
+    public void hitMiss(boolean hit, boolean shipSunk);
     /**
      * The opponent made a strike.
      * 

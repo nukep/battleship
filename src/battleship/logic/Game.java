@@ -117,12 +117,12 @@ class PlayerInput implements MessageToServer {
     {
         // check opponent's ship configuration
         boolean hit = opponent.ships.hitTest(x, y);
-        boolean winningMove;
+        boolean shipSunk, winningMove;
         
-        opponent.shipHits.strike(x, y);
+        shipSunk = opponent.shipHits.strike(x, y);
         winningMove = opponent.shipHits.isDefeated();
         
-        you.m2c.hitMiss(hit);
+        you.m2c.hitMiss(hit, shipSunk);
         opponent.m2c.opponentStrike(x, y);
         
         if (winningMove) {
