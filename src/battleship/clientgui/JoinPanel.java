@@ -12,7 +12,17 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+/**
+ * Contains fields for the player's name and the server's host name.
+ * <p>
+ * The "Join" button will invoke JoinPanel.JoinCallback's join() method.
+ * </p>
+ */
 public class JoinPanel extends JPanel implements BusyListener {
+    interface JoinCallback {
+        public void join(String playerName, String address, BusyListener busy);
+    }
+
     private static final long serialVersionUID = 1L;
 
     private class JoinButtonListener implements ActionListener {
@@ -127,8 +137,4 @@ public class JoinPanel extends JPanel implements BusyListener {
             }
         });
     }
-}
-
-interface JoinCallback {
-    public void join(String playerName, String address, BusyListener busy);
 }

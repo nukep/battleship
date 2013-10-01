@@ -5,10 +5,15 @@ import java.awt.GridBagLayout;
 
 import javax.swing.*;
 
-import battleship.client.NetClientDispatcher;
+import battleship.client.Connect;
+import battleship.client.NetClient;
 
+/**
+ * The MainWindow class is the primary window (frame) used by the Client GUI.
+ *
+ */
 public class MainWindow {
-    private final class JoinConnect implements ConnectListener {
+    private final class JoinConnect implements Connect.ConnectListener {
         private final BusyListener busy;
 
         private JoinConnect(BusyListener busy) {
@@ -37,7 +42,7 @@ public class MainWindow {
     }
 
     private JFrame frame;
-    private JoinCallback joinCallback;
+    private JoinPanel.JoinCallback joinCallback;
     private WelcomePanel welcomePage;
     
     public static void applySwingLookAndFeel()
@@ -63,7 +68,7 @@ public class MainWindow {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 600);
         
-        joinCallback = new JoinCallback() {
+        joinCallback = new JoinPanel.JoinCallback() {
             @Override
             public void join(String playerName, String address,
                              BusyListener busy)
@@ -105,7 +110,7 @@ public class MainWindow {
         gameplayPanel = new GameplayPanel(c.getPlayerName());
         
         M2C m2c = new M2C(this, gameplayPanel.getUIUpdate());
-        NetClientDispatcher dispatcher = new NetClientDispatchToSwing(m2c);
+        NetClient.Dispatcher dispatcher = new NetClientDispatchToSwing(m2c);
         c.start(dispatcher);
         
         m2c.setMessageToServer(c.getMessageToServer());

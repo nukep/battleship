@@ -4,7 +4,7 @@ import java.awt.Graphics2D;
 import java.util.LinkedList;
 import java.util.List;
 
-import battleship.clientgui.MapPanelDraw;
+import battleship.clientgui.BoardPanelDraw;
 import battleship.clientgui.UIUpdate;
 import battleship.common.ShipConfiguration;
 
@@ -38,7 +38,7 @@ public class ConfigureFleet implements GameMode {
     }
 
     @Override
-    public void draw(Graphics2D g2d, MapPanelDraw target, MapPanelDraw fleet)
+    public void draw(Graphics2D g2d, BoardPanelDraw target, BoardPanelDraw fleet)
     {
         int ascent = g2d.getFontMetrics().getAscent();
         int y = 40;

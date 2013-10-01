@@ -15,14 +15,31 @@ import battleship.netmessages.*;
 import battleship.netmessages.client.NetClientDisconnected;
 import battleship.netmessages.server.*;
 
+/**
+ * The NetClient class is responsible for sending and receiving messages from
+ * a server connection.
+ *
+ */
 public class NetClient implements MessageToServer {
+    /**
+     * The NetClient Dispatcher interface allows an implementation to
+     * dispatch a MessageNetClient in any way it sees fit.
+     * <p>
+     * For example, the Swing GUI uses SwingUtilities.invokeLater() to ensure
+     * that all messages are called on the Swing thread.
+     * </p>
+     */
+    public interface Dispatcher {
+        public void dispatch(MessageNetClient message);
+    }
+    
     private Socket socket;
-    private NetClientDispatcher dispatcher;
+    private Dispatcher dispatcher;
     private Thread inputThread, outputThread;
     
     private BlockingQueue<MessageNetServer> outputQueue;
     
-    public NetClient(Socket socket, NetClientDispatcher dispatcher)
+    public NetClient(Socket socket, Dispatcher dispatcher)
     {
         this.socket = socket;
         this.dispatcher = dispatcher;
@@ -79,9 +96,9 @@ public class NetClient implements MessageToServer {
 
 class InputRunnable implements Runnable {
     private Socket socket;
-    private NetClientDispatcher dispatcher;
+    private NetClient.Dispatcher dispatcher;
 
-    public InputRunnable(Socket socket, NetClientDispatcher dispatcher)
+    public InputRunnable(Socket socket, NetClient.Dispatcher dispatcher)
     {
         this.socket = socket;
         this.dispatcher = dispatcher;

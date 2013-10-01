@@ -15,7 +15,12 @@ import battleship.clientgui.gamemodes.GameMode;
 import battleship.common.Ship;
 import battleship.common.ShipConfiguration;
 
-public class MapPanel extends JPanel {
+/**
+ * Displays and manages the two game boards. The first game board shown is
+ * the target map, and the second is the fleet map.
+ *
+ */
+public class BoardPanel extends JPanel {
     private static class GridCoord {
         public int x, y;
 
@@ -57,14 +62,14 @@ public class MapPanel extends JPanel {
         @Override
         public void mouseExited(MouseEvent e)
         {
-            if (MapPanel.this.target_coord != null) {
+            if (BoardPanel.this.target_coord != null) {
                 gameMode.targetBoxOut();
-                MapPanel.this.target_coord = null;
+                BoardPanel.this.target_coord = null;
             }
             
-            if (MapPanel.this.fleet_coord != null) {
+            if (BoardPanel.this.fleet_coord != null) {
                 gameMode.fleetBoxOut();
-                MapPanel.this.fleet_coord = null;
+                BoardPanel.this.fleet_coord = null;
             }
         }
 
@@ -85,23 +90,23 @@ public class MapPanel extends JPanel {
             fc = mouseToGridCoord(e.getX(), e.getY(), fleet_tr);
             
             if (tc == null) {
-                if (MapPanel.this.target_coord != null) {
+                if (BoardPanel.this.target_coord != null) {
                     gameMode.targetBoxOut();
                 }
-            } else if (!tc.equals(MapPanel.this.target_coord)) {
+            } else if (!tc.equals(BoardPanel.this.target_coord)) {
                 gameMode.targetBoxHover(tc.x, tc.y);
             }
             
             if (fc == null) {
-                if (MapPanel.this.fleet_coord != null) {
+                if (BoardPanel.this.fleet_coord != null) {
                     gameMode.fleetBoxOut();
                 }
-            } else if (!fc.equals(MapPanel.this.fleet_coord)) {
+            } else if (!fc.equals(BoardPanel.this.fleet_coord)) {
                 gameMode.fleetBoxHover(fc.x, fc.y);
             }
             
-            MapPanel.this.target_coord = tc;
-            MapPanel.this.fleet_coord = fc;
+            BoardPanel.this.target_coord = tc;
+            BoardPanel.this.fleet_coord = fc;
         }
     
         @Override
@@ -124,10 +129,10 @@ public class MapPanel extends JPanel {
         @Override
         public void fleetBoxClick(int x, int y, boolean primary) {}
         @Override
-        public void draw(Graphics2D g2d, MapPanelDraw target, MapPanelDraw fleet) {}
+        public void draw(Graphics2D g2d, BoardPanelDraw target, BoardPanelDraw fleet) {}
     };
     
-    private MapTransform target_tr, fleet_tr;
+    private BoardTransform target_tr, fleet_tr;
     private ShipConfiguration shipConfiguration;
     private HitMissMap targetHitMiss, fleetHitMiss;
     private GameMode gameMode;
@@ -136,7 +141,7 @@ public class MapPanel extends JPanel {
     private int grid_rows;
     private GridCoord target_coord, fleet_coord;
 
-    public MapPanel(ShipConfiguration shipConfiguration,
+    public BoardPanel(ShipConfiguration shipConfiguration,
                     HitMissMap targetHitMiss, HitMissMap fleetHitMiss)
     {
         this.shipConfiguration = shipConfiguration;
@@ -174,9 +179,9 @@ public class MapPanel extends JPanel {
         
         calculateTransforms(getWidth(), getHeight());
         
-        MapPanelDraw drawTarget, drawFleet;
-        drawTarget = new MapPanelDraw(g2d, target_tr, grid_columns, grid_rows, false);
-        drawFleet  = new MapPanelDraw(g2d, fleet_tr, grid_columns, grid_rows, true);
+        BoardPanelDraw drawTarget, drawFleet;
+        drawTarget = new BoardPanelDraw(g2d, target_tr, grid_columns, grid_rows, false);
+        drawFleet  = new BoardPanelDraw(g2d, fleet_tr, grid_columns, grid_rows, true);
         
         drawTarget.grid();
         drawFleet.grid();
@@ -193,9 +198,9 @@ public class MapPanel extends JPanel {
         gameMode.draw(g2d, drawTarget, drawFleet);
     }
 
-    public GridCoord mouseToGridCoord(int m_x, int m_y, MapTransform tr)
+    public GridCoord mouseToGridCoord(int m_x, int m_y, BoardTransform tr)
     {
-        MapTransform.Coord c = tr.transformInverse(m_x, m_y);
+        BoardTransform.Coord c = tr.transformInverse(m_x, m_y);
         int x = (int)Math.floor(c.x*grid_columns);
         int y = (int)Math.floor(c.y*grid_rows);
         boolean boxHit = x >= 0 && y >= 0 && x < grid_columns && y < grid_rows;
@@ -208,7 +213,7 @@ public class MapPanel extends JPanel {
     }
     
     private void drawHitMiss(HitMissMap hitMissMap,
-                             Graphics2D g2d,MapPanelDraw drawTarget)
+                             Graphics2D g2d,BoardPanelDraw drawTarget)
     {
         int columns = shipConfiguration.getColumns();
         int x = 0;
@@ -266,11 +271,11 @@ public class MapPanel extends JPanel {
             fleet_arr[i] = fleet_arr[i]*scale + y_off;
         }
 
-        target_tr = new MapTransform(target_arr[0], target_arr[1],
+        target_tr = new BoardTransform(target_arr[0], target_arr[1],
                                      target_arr[2], target_arr[3],
                                      target_arr[4], target_arr[5]);
         
-        fleet_tr = new MapTransform(fleet_arr[0], fleet_arr[1],
+        fleet_tr = new BoardTransform(fleet_arr[0], fleet_arr[1],
                                     fleet_arr[2], fleet_arr[3],
                                     fleet_arr[4], fleet_arr[5]);
     }

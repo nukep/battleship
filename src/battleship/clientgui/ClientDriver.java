@@ -1,5 +1,9 @@
 package battleship.clientgui;
 
+/**
+ * The main driver class of the Client GUI
+ *
+ */
 public class ClientDriver {
     public static void main(String[] args)
     {

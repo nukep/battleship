@@ -1,14 +1,24 @@
-package battleship.clientgui;
+package battleship.client;
 
 import java.io.IOException;
 import java.net.Socket;
 
-import battleship.client.NetClient;
-import battleship.client.NetClientDispatcher;
 import battleship.common.MessageToServer;
 import battleship.common.NetConstants;
 
+/**
+ * The Connect class attempts to connect to a server host.
+ * <p>
+ * When connection succeeds or fails, the Connect.ConnectionListener interface
+ * methods are called.
+ * </p>
+ */
 public class Connect implements Runnable {
+    public interface ConnectListener {
+        public void connect(Connect c);
+        public void error(Exception e);
+    }
+
     private String name;
     private String host;
     private ConnectListener connectListener;
@@ -35,7 +45,7 @@ public class Connect implements Runnable {
         }
     }
     
-    public void start(NetClientDispatcher dispatcher)
+    public void start(NetClient.Dispatcher dispatcher)
     {
         client = new NetClient(socket, dispatcher);
         client.start();
@@ -53,7 +63,3 @@ public class Connect implements Runnable {
     }
 }
 
-interface ConnectListener {
-    public void connect(Connect c);
-    public void error(Exception e);
-}

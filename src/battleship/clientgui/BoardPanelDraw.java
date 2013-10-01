@@ -7,15 +7,22 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
-public class MapPanelDraw {
+/**
+ * BoardPanelDraw contains routines for drawing a game board's geometry.
+ * <p>
+ * This includes a board's background grid, the ships, and filled squares.
+ * </p>
+ *
+ */
+public class BoardPanelDraw {
     private Graphics2D g2d;
-    private MapTransform tr;
+    private BoardTransform tr;
     private int grid_columns;
     private int grid_rows;
     private boolean fleet_board;
     
-    public MapPanelDraw(Graphics2D g2d, MapTransform tr, int columns, int rows,
-                        boolean fleet_board)
+    public BoardPanelDraw(Graphics2D g2d, BoardTransform tr, int columns, int rows,
+                          boolean fleet_board)
     {
         this.g2d = g2d;
         this.tr = tr;
@@ -41,7 +48,7 @@ public class MapPanelDraw {
         double qx = (x+1-inset) / grid_columns;
         double qy = (y+1-inset) / grid_rows;
         
-        MapTransform.Coord[] c = new MapTransform.Coord[4];
+        BoardTransform.Coord[] c = new BoardTransform.Coord[4];
         c[0] = tr.transform(px, py);
         c[1] = tr.transform(qx, py);
         c[2] = tr.transform(qx, qy);
@@ -109,7 +116,7 @@ public class MapPanelDraw {
         pt.lineTo(1, 1);
         pt.lineTo(0, 1);
         pt.closePath();
-        MapTransform.Coord top, bottom;
+        BoardTransform.Coord top, bottom;
         top = tr.transform(0, 0);
         bottom = tr.transform(0, 1);
         GradientPaint gp;
@@ -122,7 +129,7 @@ public class MapPanelDraw {
         
         // draw column lines (vertical-ish)
         for (int i = 0; i < grid_columns + 1; i++) {
-            MapTransform.Coord a, b;
+            BoardTransform.Coord a, b;
             a = tr.transform((double)i / grid_columns, 0);
             b = tr.transform((double)i / grid_columns, 1);
             
@@ -132,7 +139,7 @@ public class MapPanelDraw {
         
         // draw row lines (horizontal)
         for (int i = 0; i < grid_rows + 1; i++) {
-            MapTransform.Coord a, b;
+            BoardTransform.Coord a, b;
             a = tr.transform(0, (double)i / grid_rows);
             b = tr.transform(1, (double)i / grid_rows);
             
@@ -165,13 +172,13 @@ public class MapPanelDraw {
 }
 
 class PathTransform {
-    private MapTransform tr;
+    private BoardTransform tr;
     private int columns;
     private int rows;
     private Path2D.Double path;
     double translate_x, translate_y;
 
-    public PathTransform(MapTransform tr, int columns, int rows)
+    public PathTransform(BoardTransform tr, int columns, int rows)
     {
         this.tr = tr;
         this.columns = columns;
@@ -189,14 +196,14 @@ class PathTransform {
     
     public void moveTo(double x, double y)
     {
-        MapTransform.Coord c;
+        BoardTransform.Coord c;
         c = tr.transform((x + translate_x) / columns, (y + translate_y) / rows);
         path.moveTo(c.x, c.y);
     }
     
     public void lineTo(double x, double y)
     {
-        MapTransform.Coord c;
+        BoardTransform.Coord c;
         c = tr.transform((x + translate_x) / columns, (y + translate_y) / rows);
         path.lineTo(c.x, c.y);
     }

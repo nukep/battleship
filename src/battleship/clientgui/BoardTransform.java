@@ -3,11 +3,12 @@ package battleship.clientgui;
 /**
  * Responsible for transforming 3d plane coordinates (local) to and from
  * screen coordinates.
- * 
- * Local coordinates refer to a point on a unit square (1x1).
+ * <p>
+ * Local coordinates refer to a point on a unit square (1x1).<br>
  * Screen coordinates refer to what's projected on the screen.
+ * </p>
  */
-class MapTransform {
+class BoardTransform {
     public class Coord {
         public double x, y;
     }
@@ -22,9 +23,9 @@ class MapTransform {
     /* orthographic (2D, no perspective) */
     private boolean ortho;
     
-    public MapTransform(double top_l,    double top_r,
-                        double bottom_l, double bottom_r,
-                        double top_y,    double bottom_y)
+    public BoardTransform(double top_l,    double top_r,
+                          double bottom_l, double bottom_r,
+                          double top_y,    double bottom_y)
     {
         this.top_l = top_l;
         this.bottom_l = bottom_l;

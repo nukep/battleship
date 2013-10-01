@@ -11,6 +11,10 @@ import javax.swing.JPanel;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
+/**
+ * The "waiting" animation, represented by the orange spinning circles.
+ *
+ */
 public class WaitingPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     
@@ -19,7 +23,7 @@ public class WaitingPanel extends JPanel {
     
     public WaitingPanel(int size)
     {
-        new AnimationTimer(this, new AnimationTimerCallback() {
+        new AnimationTimer(this, new AnimationTimer.TimerCallback() {
             @Override
             public void trigger(double delta_seconds)
             {
@@ -54,7 +58,8 @@ public class WaitingPanel extends JPanel {
         this(64);
     }
     
-    private Shape calcCircle(double p, double offset, double center_x, double center_y, double width)
+    private Shape calcCircle(double p, double offset,
+                             double center_x, double center_y, double width)
     {
         double radian = p * Math.PI*2;
         
@@ -64,10 +69,14 @@ public class WaitingPanel extends JPanel {
         return new Ellipse2D.Double(x, y, width, width);
     }
     
+    /**
+     * Converts a linear 0..1 function to a sinusoidal easing function
+     * 
+     * @param phase A value from 0..1
+     * @return The adjusted phase value
+     */
     private double adjustPhase(double phase)
     {
-        /* converts a linear 0..1 function to a sinusoidal easing function */
-        
         /* window is 0.0 to 0.5 (non-inclusive)
          * window is the "non-intensity" of the easing function.
          * 0.0 is the most extreme (cosine with no adjustments)

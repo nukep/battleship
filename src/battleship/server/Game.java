@@ -7,6 +7,11 @@ import battleship.common.MessageToServer;
 import battleship.common.Player;
 import battleship.common.ShipConfiguration;
 
+/**
+ * The Game class is responsible for maintaining the game state between two
+ * players.
+ *
+ */
 public class Game {    
     class GameState {
         private PlayerState ps1, ps2;

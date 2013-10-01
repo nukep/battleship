@@ -15,6 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import battleship.client.HitMissMap;
 import battleship.clientgui.gamemodes.ConfigureFleet;
@@ -23,6 +24,11 @@ import battleship.clientgui.gamemodes.GameModeFinished;
 import battleship.common.MessageToServer;
 import battleship.common.ShipConfiguration;
 
+/**
+ * The Gameplay panel contains everything needed for playing the game.
+ * It includes a BoardPanel (the two main boards), and chat controls.
+ *
+ */
 public class GameplayPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     
@@ -77,19 +83,19 @@ public class GameplayPanel extends JPanel {
         @Override
         public void update()
         {
-            mapPanel.repaint();
+            boardPanel.repaint();
         }
 
         @Override
         public void setGameMode(GameMode gameMode)
         {
-            mapPanel.setGameMode(gameMode);
+            boardPanel.setGameMode(gameMode);
         }
 
         @Override
         public void clearGameMode()
         {
-            mapPanel.clearGameMode();
+            boardPanel.clearGameMode();
         }
 
         @Override
@@ -118,7 +124,7 @@ public class GameplayPanel extends JPanel {
         public void setTargetHitMiss(int x, int y, boolean hit)
         {
             targetHitMiss.setHitMiss(x, y, hit);
-            mapPanel.repaint();
+            boardPanel.repaint();
         }
 
         @Override
@@ -127,7 +133,7 @@ public class GameplayPanel extends JPanel {
             boolean hit = shipConfiguration.hitTest(x, y);
             
             fleetHitMiss.setHitMiss(x, y, hit);
-            mapPanel.repaint();
+            boardPanel.repaint();
         }
     };
 
@@ -135,7 +141,7 @@ public class GameplayPanel extends JPanel {
     private JTextArea chatBox;
     private JTextField chatTextField;
     private JButton chatSendButton;
-    private MapPanel mapPanel;
+    private BoardPanel boardPanel;
     private StatusPanel statusPanel;
     
     private MessageToServer m2s;
@@ -160,9 +166,9 @@ public class GameplayPanel extends JPanel {
         this.fleetHitMiss  = new HitMissMap(10, 10);
         this.shipConfiguration = new ShipConfiguration(10, 10);
         
-        this.mapPanel = new MapPanel(shipConfiguration, targetHitMiss, fleetHitMiss);
+        this.boardPanel = new BoardPanel(shipConfiguration, targetHitMiss, fleetHitMiss);
         
-        this.add(mapPanel, c);
+        this.add(boardPanel, c);
         
         c.weighty = 0.0;
         c.gridy++;
@@ -188,14 +194,14 @@ public class GameplayPanel extends JPanel {
             new GameModeFinished() {
                 @Override
                 public void finished() {
-                    mapPanel.clearGameMode();
+                    boardPanel.clearGameMode();
                     uiUpdate.statusMessage("Waiting for other player", true);
                     m2s.configureFleet(shipConfiguration);
                 }
             }
         );
         
-        this.mapPanel.setGameMode(gameMode);
+        this.boardPanel.setGameMode(gameMode);
         uiUpdate.statusMessage("Hello! Place your ships on the blue board above to begin.", false);
     }
 
@@ -249,6 +255,14 @@ public class GameplayPanel extends JPanel {
         c.weightx = 0.0;
         
         panel.add(chatSendButton, c);
+        
+        // Give the chat text field the default focus
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                chatTextField.requestFocus();
+            }
+        });
         
         return panel;
     }

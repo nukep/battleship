@@ -9,17 +9,21 @@ import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
 /**
- * The AnimationTimer class provides a timer with a consistent frame rate.
+ * The AnimationTimer class provides a Swing timer with a consistent frame rate.
  *
  */
 public class AnimationTimer {
+    public interface TimerCallback {
+        public void trigger(double delta_seconds);
+    }
+    
     // We're using a constant frame rate for all animations
     final static int FPS = 60;
     
     private Timer timer;
     private boolean firstTick;
     
-    public AnimationTimer(JComponent component, final AnimationTimerCallback cb)
+    public AnimationTimer(JComponent component, final TimerCallback cb)
     {
         int delay = 1000 / FPS;
         timer = new Timer(delay, new ActionListener() {
@@ -70,8 +74,4 @@ public class AnimationTimer {
             }
         });
     }
-}
-
-interface AnimationTimerCallback {
-    public void trigger(double delta_seconds);
 }

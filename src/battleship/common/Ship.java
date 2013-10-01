@@ -1,5 +1,10 @@
 package battleship.common;
 
+/**
+ * The Ship class describes a ship's top-left coordinates, its length, and
+ * whether it's laid vertical or horizontal.
+ *
+ */
 public class Ship {
     private int x, y;
     private int length;

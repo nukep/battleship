@@ -2,6 +2,10 @@ package battleship.common;
 
 import java.util.Date;
 
+/**
+ * Server -> Client
+ *
+ */
 public interface MessageToClient {
     /**
      * You are now paired with an opponent.
@@ -17,6 +21,7 @@ public interface MessageToClient {
     public void disconnected(boolean opponentLeft);
     /**
      * It is now someone's turn.
+     * <p>
      * This is also called for the first time when both the players' fleets are
      * configured.
      * 
@@ -25,7 +30,8 @@ public interface MessageToClient {
     public void firstTurn(boolean yourTurn);
     /**
      * Client receives a chat message.
-     * Note: The client always receives their own messages.
+     * <p>
+     * <i>Note: The client always receives their own messages.</i>
      * 
      * @param message The whole message, typically including the player name
      *                or server status

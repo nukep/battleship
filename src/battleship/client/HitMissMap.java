@@ -2,6 +2,10 @@ package battleship.client;
 
 import java.util.Iterator;
 
+/**
+ * Stores and manages a byte array of hit and missed squares on the target map
+ *
+ */
 public class HitMissMap implements Iterable<Byte> {
     public static final byte UNTOUCHED=0;
     public static final byte HIT=1;

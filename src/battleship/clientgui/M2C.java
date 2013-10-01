@@ -11,7 +11,10 @@ import battleship.common.MessageToServer;
 
 /**
  * The Swing client's MessageToClient implementation.
- * 
+ * <p>
+ * To put it shortly, all messages coming from the server to the client are
+ * dealt with here.
+ * </p>
  * All calls to the MessageToClient methods are on the Event Dispatcher thread
  * (Swing's GUI thread).
  */

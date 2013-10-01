@@ -2,7 +2,7 @@ package battleship.clientgui.gamemodes;
 
 import java.awt.Graphics2D;
 
-import battleship.clientgui.MapPanelDraw;
+import battleship.clientgui.BoardPanelDraw;
 import battleship.clientgui.UIUpdate;
 
 public class TargetStrike implements GameMode {
@@ -29,7 +29,7 @@ public class TargetStrike implements GameMode {
     }
     
     @Override
-    public void draw(Graphics2D g2d, MapPanelDraw target, MapPanelDraw fleet)
+    public void draw(Graphics2D g2d, BoardPanelDraw target, BoardPanelDraw fleet)
     {
         if (hover) {
             target.color(25, 255, 255, 128);

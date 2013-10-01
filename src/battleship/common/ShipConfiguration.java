@@ -4,6 +4,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * The Ship Configuration defines all ships on the fleet board.
+ *
+ */
 public class ShipConfiguration {
     public class Location {
         public Ship ship;

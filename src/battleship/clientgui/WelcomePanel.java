@@ -7,12 +7,16 @@ import java.awt.GridBagLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+/**
+ * The first panel to be seen by the user.
+ * Contains the logo and JoinPanel.
+ */
 public class WelcomePanel extends JPanel {
     private static final long serialVersionUID = 1L;
 
     private JoinPanel joinPanel;
     
-    public WelcomePanel(JoinCallback joinCallback)
+    public WelcomePanel(JoinPanel.JoinCallback joinCallback)
     {
         super(new GridBagLayout());
         joinPanel = new JoinPanel(joinCallback);
