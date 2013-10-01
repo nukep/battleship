@@ -46,6 +46,11 @@ public class Connect implements Runnable {
     {
         return client;
     }
+
+    public String getPlayerName()
+    {
+        return name;
+    }
 }
 
 interface ConnectListener {

@@ -41,6 +41,8 @@ public class TargetStrike implements GameMode {
     public void targetBoxClick(int x, int y, boolean primary)
     {
         hover = false;
+        target_x = x;
+        target_y = y;
         finished.finished();
     }
 
@@ -68,5 +70,4 @@ public class TargetStrike implements GameMode {
 
     @Override
     public void fleetBoxOut() {}
-
 }

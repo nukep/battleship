@@ -19,6 +19,7 @@ public class Game {
         public void configureFleet(ShipConfiguration ships, PlayerState p)
         {
             p.ships = ships;
+            p.shipHits = new ShipHits(ships);
             
             if (ps1.ships != null && ps2.ships != null) {
                 // both players' fleets are configured
@@ -40,8 +41,8 @@ public class Game {
             // randomly select whose turn is first
             boolean player1 = Math.random() > 0.5;
             
-            ps1.m2c.turn(player1);
-            ps2.m2c.turn(!player1);
+            ps1.m2c.firstTurn(player1);
+            ps2.m2c.firstTurn(!player1);
         }
     }
 
@@ -65,7 +66,7 @@ class PlayerState {
     
     public Player player;
     public ShipConfiguration ships;
-    public HitMissMap hitMiss;
+    public ShipHits shipHits;
     
     public PlayerState(MessageToClient m2c,  Player player)
     {
@@ -116,8 +117,18 @@ class PlayerInput implements MessageToServer {
     {
         // check opponent's ship configuration
         boolean hit = opponent.ships.hitTest(x, y);
+        boolean winningMove;
+        
+        opponent.shipHits.strike(x, y);
+        winningMove = opponent.shipHits.isDefeated();
         
         you.m2c.hitMiss(hit);
         opponent.m2c.opponentStrike(x, y);
+        
+        if (winningMove) {
+            // you won, opponent lost
+            you.m2c.gameComplete(true);
+            opponent.m2c.gameComplete(false);
+        }
     }
 }

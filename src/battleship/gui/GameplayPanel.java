@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -129,7 +130,8 @@ public class GameplayPanel extends JPanel {
             mapPanel.repaint();
         }
     };
-    
+
+    private String name;
     private JTextArea chatBox;
     private JTextField chatTextField;
     private JButton chatSendButton;
@@ -141,9 +143,11 @@ public class GameplayPanel extends JPanel {
     private HitMissMap targetHitMiss;
     private HitMissMap fleetHitMiss;
     
-    public GameplayPanel()
+    public GameplayPanel(String name)
     {
         super(new GridBagLayout());
+        
+        this.name = name;
         
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
@@ -218,8 +222,14 @@ public class GameplayPanel extends JPanel {
         chatTextField = new JTextField();
     
         c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(5, 5, 5, 5);
         c.gridx = 0;
         c.gridy = 0;
+        c.weightx = 0.0;
+        
+        panel.add(new JLabel(name + ": "));
+        
+        c.gridx++;
         c.weightx = 1.0;
         
         panel.add(chatTextField, c);
@@ -236,7 +246,6 @@ public class GameplayPanel extends JPanel {
         });
         
         c.gridx++;
-        c.gridy = 0;
         c.weightx = 0.0;
         
         panel.add(chatSendButton, c);

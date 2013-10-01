@@ -5,6 +5,19 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ShipConfiguration {
+    public class Location {
+        public Ship ship;
+        public int index;
+        public int offset;
+        
+        public Location(Ship ship, int index, int offset)
+        {
+            this.ship = ship;
+            this.index = index;
+            this.offset = offset;
+        }
+    }
+    
     private List<Ship> ships;
     private int columns;
     private int rows;
@@ -53,19 +66,19 @@ public class ShipConfiguration {
         }
         return false;
     }
-    
+
     /**
-     * Check if there's a ship at this location
+     * Get the ship at this location
      * 
      * @param x
      * @param y
-     * @return True if ship exists/out of bounds, false otherwise
+     * @return The ship object at this location; null if none exists 
      */
-    public boolean hitTest(int x, int y)
+    public Ship getShipAt(int x, int y)
     {
         if (x < 0 || y < 0 || x >= columns || y >= rows) {
             // out of bounds
-            return true;
+            return null;
         }
         
         for (Ship s: ships) {
@@ -75,11 +88,52 @@ public class ShipConfiguration {
                 
                 if (sx == x && sy == y) {
                     // there's a ship here
-                    return true;
+                    return s;
                 }
             }
         }
-        return false;
+        return null;
+    }
+    
+    /**
+     * @param x
+     * @param y
+     * @return The index of the ship at this location; -1 if none exists
+     */
+    public Location getShipLocation(int x, int y)
+    {
+        if (x < 0 || y < 0 || x >= columns || y >= rows) {
+            // out of bounds
+            return null;
+        }
+        
+        int index = 0;
+        for (Ship s: ships) {
+            for (int i = 0; i < s.getLength(); i++) {
+                int sx = s.getX() + (s.isHorizontal()?i:0);
+                int sy = s.getY() + (s.isHorizontal()?0:i);
+                
+                if (sx == x && sy == y) {
+                    // there's a ship here
+                    return new Location(s, index, i);
+                }
+            }
+            index++;
+        }
+        return null;
+    }
+
+    /**
+     * Check if there's a ship at this location
+     * 
+     * @param x
+     * @param y
+     * @return True if ship exists/out of bounds, false otherwise
+     */
+    public boolean hitTest(int x, int y)
+    {
+        Ship s = getShipAt(x, y);
+        return s != null;
     }
 
     public int getColumns()
@@ -90,5 +144,10 @@ public class ShipConfiguration {
     public int getRows()
     {
         return rows;
+    }
+
+    public int getShipCount()
+    {
+        return ships.size();
     }
 }

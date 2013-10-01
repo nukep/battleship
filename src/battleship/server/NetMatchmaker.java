@@ -8,13 +8,11 @@ import battleship.logic.Player;
 class NetMatchmaker {
     private LinkedList<NetGame> activeGames;
     private NetGame waitingGame;
-    private int totalConnectionsMade;
     
     public NetMatchmaker()
     {
         activeGames = new LinkedList<>();
         waitingGame = null;
-        totalConnectionsMade = 0;
     }
     
     public synchronized NetGamePlayerHandle connect(NetConnection conn,

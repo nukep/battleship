@@ -3,19 +3,19 @@ package battleship.netmessages.client;
 import battleship.logic.MessageToClient;
 import battleship.netmessages.MessageNetClient;
 
-public class NetClientTurn implements MessageNetClient {
+public class NetClientGameComplete implements MessageNetClient {
     private static final long serialVersionUID = 1L;
     
-    private boolean yourTurn;
+    private boolean youWin;
     
-    public NetClientTurn(boolean yourTurn)
+    public NetClientGameComplete(boolean youWin)
     {
-        this.yourTurn = yourTurn;
+        this.youWin = youWin;
     }
 
     @Override
     public void toClient(MessageToClient c)
     {
-        c.firstTurn(yourTurn);
+        c.gameComplete(youWin);
     }
 }

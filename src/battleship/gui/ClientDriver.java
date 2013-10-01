@@ -1,6 +1,6 @@
 package battleship.gui;
 
-public class Main {
+public class ClientDriver {
     public static void main(String[] args)
     {
         MainWindow.applySwingLookAndFeel();

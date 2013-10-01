@@ -38,7 +38,7 @@ public class MapPanel extends JPanel {
     
     private class Mouse implements MouseListener {
         @Override
-        public void mouseClicked(MouseEvent e) {
+        public void mouseReleased(MouseEvent e) {
             GridCoord tc, fc;
             
             tc = mouseToGridCoord(e.getX(), e.getY(), target_tr);
@@ -69,7 +69,7 @@ public class MapPanel extends JPanel {
         }
 
         @Override
-        public void mouseReleased(MouseEvent e) {}
+        public void mouseClicked(MouseEvent e) {}
         @Override
         public void mousePressed(MouseEvent e) {}
         @Override

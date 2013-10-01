@@ -27,7 +27,7 @@ class NetConnectionM2C implements MessageToClient
     }
 
     @Override
-    public void turn(boolean yourTurn) {
+    public void firstTurn(boolean yourTurn) {
         queue.add(new NetClientTurn(yourTurn));
     }
 
@@ -48,7 +48,6 @@ class NetConnectionM2C implements MessageToClient
 
     @Override
     public void gameComplete(boolean youWin) {
-        // TODO Auto-generated method stub
-        
+        queue.add(new NetClientGameComplete(youWin));
     }
 }

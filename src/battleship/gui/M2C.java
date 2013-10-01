@@ -56,7 +56,7 @@ public class M2C implements MessageToClient {
     }
 
     @Override
-    public void turn(boolean yourTurn) {
+    public void firstTurn(boolean yourTurn) {
         if (yourTurn) {
             uiUpdate.setGameMode(targetStrike);
             uiUpdate.statusMessage("Your turn", false);
@@ -93,8 +93,12 @@ public class M2C implements MessageToClient {
 
     @Override
     public void gameComplete(boolean youWin) {
-        // TODO Auto-generated method stub
+        String message;
         
+        message = youWin ? "You won! Yay." : "You lost the game.";
+        
+        uiUpdate.clearGameMode();
+        uiUpdate.statusMessage(message, false);
     }
 
     public void setMessageToServer(MessageToServer m2s) {

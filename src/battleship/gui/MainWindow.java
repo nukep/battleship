@@ -1,8 +1,6 @@
 package battleship.gui;
 
 import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.*;
@@ -63,7 +61,7 @@ public class MainWindow {
     {
         frame = new JFrame("Battleship");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
+        frame.setSize(600, 600);
         
         joinCallback = new JoinCallback() {
             @Override
@@ -104,7 +102,7 @@ public class MainWindow {
     public void switchToGameplay(Connect c)
     {
         GameplayPanel gameplayPanel;
-        gameplayPanel = new GameplayPanel();
+        gameplayPanel = new GameplayPanel(c.getPlayerName());
         
         M2C m2c = new M2C(this, gameplayPanel.getUIUpdate());
         NetClientDispatcher dispatcher = new NetClientDispatchToSwing(m2c);

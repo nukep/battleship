@@ -22,7 +22,7 @@ public interface MessageToClient {
      * 
      * @param yourTurn True if it's your turn, false if it's the opponent's turn
      */
-    public void turn(boolean yourTurn);
+    public void firstTurn(boolean yourTurn);
     /**
      * Client receives a chat message.
      * Note: The client always receives their own messages.
