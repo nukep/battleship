@@ -4,7 +4,15 @@ import java.util.Date;
 
 /**
  * Server -> Client
- *
+ * <p>
+ * The MessageToClient interface is <i>very</i> important.
+ * It is used on both the server and client side for message passing.
+ * <p>
+ * The server uses MessageToClient to send messages to the client.<br>
+ * The client uses MessageToClient to receive messages from the server.
+ * 
+ * @see MessageToServer
+ * @see battleship.netmessages.MessageNetClient
  */
 public interface MessageToClient {
     /**

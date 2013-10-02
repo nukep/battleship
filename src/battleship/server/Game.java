@@ -106,6 +106,10 @@ class PlayerInput implements MessageToServer {
     @Override
     public void chat(String message)
     {
+        // don't bother sending an empty message
+        if (message.isEmpty())
+            return;
+        
         Date now = new Date();
         String new_message;
         

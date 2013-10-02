@@ -5,7 +5,6 @@ package battleship.clientgui;
  * <p>
  * Currently used for "connecting" and "waiting for opponent".
  * The methods must be callable from any thread (thread-safe).
- * </p>
  */
 public interface BusyListener {
     public void busy();

@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,7 +21,7 @@ import javax.swing.SwingUtilities;
 import battleship.client.HitMissMap;
 import battleship.clientgui.gamemodes.ConfigureFleet;
 import battleship.clientgui.gamemodes.GameMode;
-import battleship.clientgui.gamemodes.GameModeFinished;
+import battleship.common.GameConstants;
 import battleship.common.MessageToServer;
 import battleship.common.ShipConfiguration;
 
@@ -32,11 +33,16 @@ import battleship.common.ShipConfiguration;
 public class GameplayPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     
-    class StatusPanel extends JPanel {
+    private interface PlayAgain {
+        public void playAgain(boolean yes);
+    }
+    
+    private class StatusPanel extends JPanel {
         private static final long serialVersionUID = 1L;
         
         private JLabel statusLabel;
         private WaitingPanel waitingPanel;
+        private JPanel playAgainPanel;
         
         public StatusPanel()
         {
@@ -63,6 +69,38 @@ public class GameplayPanel extends JPanel {
             waitingPanel.setVisible(false);
             this.add(waitingPanel, c);
             
+            c.gridx = 0;
+            c.gridy++;
+            c.fill = GridBagConstraints.NONE;
+            
+            playAgainPanel = new JPanel(new GridLayout());
+            
+            JButton yesButton, noButton;
+            
+            yesButton = new JButton("Yes");
+            yesButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent arg0)
+                {
+                    GameplayPanel.this.playAgain.playAgain(true);
+                }
+            });
+            
+            noButton = new JButton("No");
+            noButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent arg0)
+                {
+                    GameplayPanel.this.playAgain.playAgain(false);
+                }
+            });
+            
+            playAgainPanel.add(yesButton);
+            playAgainPanel.add(noButton);
+            playAgainPanel.setVisible(false);
+            
+            this.add(playAgainPanel, c);
+            
             this.setPreferredSize(new Dimension(0, height));
         }
         
@@ -70,6 +108,11 @@ public class GameplayPanel extends JPanel {
         {
             statusLabel.setText(message);
             waitingPanel.setVisible(busy);
+        }
+        
+        public void showPlayAgain()
+        {
+            playAgainPanel.setVisible(true);
         }
         
         public void statusClear()
@@ -128,12 +171,28 @@ public class GameplayPanel extends JPanel {
         }
 
         @Override
-        public void setFleetHitMiss(int x, int y)
+        public boolean setFleetHitMiss(int x, int y)
         {
             boolean hit = shipConfiguration.hitTest(x, y);
             
             fleetHitMiss.setHitMiss(x, y, hit);
             boardPanel.repaint();
+            
+            return hit;
+        }
+
+        @Override
+        public void gameComplete(boolean youWin)
+        {
+            String message;
+            
+            message = youWin ? "You won! Yay." : "You lost the game.";
+            
+            message += " Play again?";
+            
+            clearGameMode();
+            statusMessage(message, false);
+            statusPanel.showPlayAgain();
         }
     };
 
@@ -148,6 +207,7 @@ public class GameplayPanel extends JPanel {
     private ShipConfiguration shipConfiguration;
     private HitMissMap targetHitMiss;
     private HitMissMap fleetHitMiss;
+    private PlayAgain playAgain;
     
     public GameplayPanel(String name)
     {
@@ -162,9 +222,13 @@ public class GameplayPanel extends JPanel {
         c.gridx = 0;
         c.gridy = 0;
         
-        this.targetHitMiss = new HitMissMap(10, 10);
-        this.fleetHitMiss  = new HitMissMap(10, 10);
-        this.shipConfiguration = new ShipConfiguration(10, 10);
+        int you_cols, you_rows, opponent_cols, opponent_rows;
+        you_cols = opponent_cols = GameConstants.BOARD_WIDTH;
+        you_rows = opponent_rows = GameConstants.BOARD_WIDTH;
+
+        this.shipConfiguration = new ShipConfiguration(you_cols, you_rows);
+        this.targetHitMiss = new HitMissMap(opponent_cols, opponent_rows);
+        this.fleetHitMiss  = new HitMissMap(you_cols, you_rows);
         
         this.boardPanel = new BoardPanel(shipConfiguration, targetHitMiss, fleetHitMiss);
         
@@ -188,12 +252,11 @@ public class GameplayPanel extends JPanel {
         
         JPanel chatLinePanel = initChatlinePanel();
         this.add(chatLinePanel, c);
-        
 
         GameMode gameMode = new ConfigureFleet(shipConfiguration, uiUpdate,
-            new GameModeFinished() {
+            new ConfigureFleet.Done() {
                 @Override
-                public void finished() {
+                public void done() {
                     boardPanel.clearGameMode();
                     uiUpdate.statusMessage("Waiting for other player", true);
                     m2s.configureFleet(shipConfiguration);
@@ -203,6 +266,18 @@ public class GameplayPanel extends JPanel {
         
         this.boardPanel.setGameMode(gameMode);
         uiUpdate.statusMessage("Hello! Place your ships on the blue board above to begin.", false);
+    
+        playAgain = new PlayAgain() {
+            @Override
+            public void playAgain(boolean yes)
+            {
+                if (yes) {
+                    
+                } else {
+                    
+                }
+            }
+        };
     }
 
     public JButton getDefaultButton()
@@ -246,8 +321,10 @@ public class GameplayPanel extends JPanel {
             public void actionPerformed(ActionEvent arg0)
             {
                 String message = chatTextField.getText();
-                chatTextField.setText("");
-                m2s.chat(message);
+                if (!message.isEmpty()) {
+                    chatTextField.setText("");
+                    m2s.chat(message);
+                }
             }
         });
         

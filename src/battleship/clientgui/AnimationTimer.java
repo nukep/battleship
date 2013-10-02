@@ -16,8 +16,10 @@ public class AnimationTimer {
     public interface TimerCallback {
         public void trigger(double delta_seconds);
     }
-    
-    // We're using a constant frame rate for all animations
+
+    /**
+     * The amount of frames per second to tick the timer
+     */
     final static int FPS = 60;
     
     private Timer timer;

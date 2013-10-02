@@ -14,5 +14,7 @@ public interface UIUpdate {
     public void appendChatbox(String message);
     
     public void setTargetHitMiss(int x, int y, boolean hit);
-    public void setFleetHitMiss(int x, int y);
+    public boolean setFleetHitMiss(int x, int y);
+
+    public void gameComplete(boolean youWin);
 }

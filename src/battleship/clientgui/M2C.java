@@ -1,10 +1,11 @@
 package battleship.clientgui;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.JOptionPane;
 
-import battleship.clientgui.gamemodes.GameModeFinished;
 import battleship.clientgui.gamemodes.TargetStrike;
 import battleship.common.MessageToClient;
 import battleship.common.MessageToServer;
@@ -14,7 +15,7 @@ import battleship.common.MessageToServer;
  * <p>
  * To put it shortly, all messages coming from the server to the client are
  * dealt with here.
- * </p>
+ * <p>
  * All calls to the MessageToClient methods are on the Event Dispatcher thread
  * (Swing's GUI thread).
  */
@@ -23,24 +24,26 @@ public class M2C implements MessageToClient {
     private MessageToServer m2s;
     private UIUpdate uiUpdate;
     private TargetStrike targetStrike;
+    private DateFormat chatDateFormat;
+    private int target_x, target_y;
 
     public M2C(MainWindow mainWindow, UIUpdate uiUpdate)
     {
         this.mainWindow = mainWindow;
         this.uiUpdate = uiUpdate;
-        this.targetStrike = new TargetStrike(uiUpdate, new GameModeFinished() {
+        this.targetStrike = new TargetStrike(uiUpdate, new TargetStrike.Click() {
             @Override
-            public void finished()
+            public void click(int x, int y)
             {
-                int x = M2C.this.targetStrike.getX();
-                int y = M2C.this.targetStrike.getY();
-                
+                target_x = x;
+                target_y = y;
                 M2C.this.uiUpdate.clearGameMode();
                 m2s.strikeSquare(x, y);
                 
                 M2C.this.uiUpdate.statusMessage("", true);
             }
         });
+        chatDateFormat = new SimpleDateFormat("h:mm:ss a");
     }
     
     @Override
@@ -71,39 +74,34 @@ public class M2C implements MessageToClient {
 
     @Override
     public void chat(String message, Date date) {
-        uiUpdate.appendChatbox(message);
+        String dateStr = chatDateFormat.format(date);
+        uiUpdate.appendChatbox(dateStr + " - " + message);
     }
 
     @Override
     public void hitMiss(boolean hit, boolean shipSunk) {
         String message, status;
         
-        int x = targetStrike.getX();
-        int y = targetStrike.getY();
-        
         status = hit ? (shipSunk ? "You sunk their ship":"Hit"):"Miss";
         message = status + "! Opponent's turn";
         
         uiUpdate.clearGameMode();
         uiUpdate.statusMessage(message, true);
-        uiUpdate.setTargetHitMiss(x, y, hit);
+        uiUpdate.setTargetHitMiss(target_x, target_y, hit);
     }
 
     @Override
     public void opponentStrike(int x, int y) {
+        boolean hit = uiUpdate.setFleetHitMiss(x, y);
+        String status = hit ? "hit":"missed";
+        
         uiUpdate.setGameMode(targetStrike);
-        uiUpdate.statusMessage(String.format("%d x %d. Your turn", x, y), false);
-        uiUpdate.setFleetHitMiss(x, y);
+        uiUpdate.statusMessage(String.format("Opponent %s. Your turn", status), false);
     }
 
     @Override
     public void gameComplete(boolean youWin) {
-        String message;
-        
-        message = youWin ? "You won! Yay." : "You lost the game.";
-        
-        uiUpdate.clearGameMode();
-        uiUpdate.statusMessage(message, false);
+        uiUpdate.gameComplete(youWin);
     }
 
     public void setMessageToServer(MessageToServer m2s) {

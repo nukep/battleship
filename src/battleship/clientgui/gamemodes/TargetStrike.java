@@ -5,27 +5,25 @@ import java.awt.Graphics2D;
 import battleship.clientgui.BoardPanelDraw;
 import battleship.clientgui.UIUpdate;
 
+/**
+ * The TargetStrike game mode is active when it's the player's turn to strike.
+ *
+ */
 public class TargetStrike implements GameMode {
+    public interface Click {
+        public void click(int x, int y);
+    }
+    
     private UIUpdate update;
-    private GameModeFinished finished;
+    private Click finished;
     
     private boolean hover;
     private int target_x, target_y;
 
-    public TargetStrike(UIUpdate update, GameModeFinished finished)
+    public TargetStrike(UIUpdate update, Click finished)
     {
         this.update = update;
         this.finished = finished;
-    }
-    
-    public int getX()
-    {
-        return target_x;
-    }
-    
-    public int getY()
-    {
-        return target_y;
     }
     
     @Override
@@ -41,9 +39,7 @@ public class TargetStrike implements GameMode {
     public void targetBoxClick(int x, int y, boolean primary)
     {
         hover = false;
-        target_x = x;
-        target_y = y;
-        finished.finished();
+        finished.click(x, y);
     }
 
     @Override

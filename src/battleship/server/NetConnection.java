@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -13,15 +14,67 @@ import battleship.common.MessageToClient;
 import battleship.common.Player;
 import battleship.netmessages.MessageNetClient;
 import battleship.netmessages.MessageNetServer;
+import battleship.netmessages.client.NetClientChat;
+import battleship.netmessages.client.NetClientDisconnected;
+import battleship.netmessages.client.NetClientGameComplete;
+import battleship.netmessages.client.NetClientHitMiss;
+import battleship.netmessages.client.NetClientOpponentJoin;
+import battleship.netmessages.client.NetClientOpponentStrike;
+import battleship.netmessages.client.NetClientTurn;
 import battleship.netmessages.server.NetServerConnect;
 
-class NetConnection {
+class NetConnection {    
+    private static class NetConnectionM2C implements MessageToClient
+    {
+        private BlockingQueue<MessageNetClient> queue;
+        
+        public NetConnectionM2C(BlockingQueue<MessageNetClient> queue)
+        {
+            this.queue = queue;
+        }
+        
+        @Override
+        public void opponentJoin(String name) {
+            queue.add(new NetClientOpponentJoin(name));
+        }
+
+        @Override
+        public void disconnected(boolean opponentLeft) {
+            queue.add(new NetClientDisconnected(opponentLeft));
+        }
+
+        @Override
+        public void firstTurn(boolean yourTurn) {
+            queue.add(new NetClientTurn(yourTurn));
+        }
+
+        @Override
+        public void chat(String message, Date date) {
+            queue.add(new NetClientChat(message, date));
+        }
+
+        @Override
+        public void hitMiss(boolean hit, boolean shipSunk) {
+            queue.add(new NetClientHitMiss(hit, shipSunk));
+        }
+
+        @Override
+        public void opponentStrike(int x, int y) {
+            queue.add(new NetClientOpponentStrike(x, y));
+        }
+
+        @Override
+        public void gameComplete(boolean youWin) {
+            queue.add(new NetClientGameComplete(youWin));
+        }
+    }
+    
     private Socket socket;
     private Thread inThread, outThread;
     private InputRunnable inputRunnable;
     private BlockingQueue<MessageNetClient> outputQueue;
     private NetMatchHandle matchHandle;
-    private NetConnectionM2C m2c;
+    private MessageToClient m2c;
 
     public NetConnection(Socket socket, NetMatchmaker matchmaker)
     {

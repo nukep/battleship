@@ -1,5 +1,17 @@
 package battleship.common;
 
+/**
+ * Client -> Server
+ * <p>
+ * The MessageToServer interface is <i>very</i> important.
+ * It is used on both the server and client side for message passing.
+ * <p>
+ * The server uses MessageToServer to receive messages from the client.<br>
+ * The client uses MessageToServer to send messages to the server.
+ * 
+ * @see MessageToClient
+ * @see battleship.netmessages.MessageNetServer
+ */
 public interface MessageToServer {
     /**
      * The first message, confirming connection.

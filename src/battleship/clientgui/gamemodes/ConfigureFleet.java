@@ -6,9 +6,20 @@ import java.util.List;
 
 import battleship.clientgui.BoardPanelDraw;
 import battleship.clientgui.UIUpdate;
+import battleship.common.GameConstants;
 import battleship.common.ShipConfiguration;
 
+/**
+ * The ConfigureFleet game mode is active when first starting the game.
+ * <p>
+ * The player places their ships on the board. Once they are done, the game
+ * commences.
+ */
 public class ConfigureFleet implements GameMode {
+    public interface Done {
+        public void done();
+    };
+    
     private int ship_x, ship_y;
     private boolean hover;
     private boolean horizontal;
@@ -17,23 +28,22 @@ public class ConfigureFleet implements GameMode {
 
     private ShipConfiguration ships;
     private UIUpdate update;
-    private GameModeFinished finished;
+    private Done done;
     
     public ConfigureFleet(ShipConfiguration ships, UIUpdate update,
-                          GameModeFinished finished)
+                          Done done)
     {
         this.ships = ships;
         this.update = update;
-        this.finished = finished;
+        this.done = done;
         
         this.hover = false;
         this.horizontal = true;
         this.remainingShips = new LinkedList<>();
-        remainingShips.add(5);
-        remainingShips.add(4);
-        remainingShips.add(3);
-        remainingShips.add(3);
-        remainingShips.add(2);
+        for (byte l: GameConstants.SHIP_LENGTHS) {
+            remainingShips.add(new Integer(l));
+        }
+        
         this.currentShipIndex = 0;
     }
 
@@ -165,7 +175,7 @@ public class ConfigureFleet implements GameMode {
         remainingShips.remove(currentShipIndex);
         
         if (remainingShips.isEmpty()) {
-            finished.finished();
+            done.done();
         }
     }
 }
