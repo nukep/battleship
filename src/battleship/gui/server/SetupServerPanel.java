@@ -2,142 +2,28 @@ package battleship.gui.server;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
-import battleship.common.GameConstants;
-import battleship.common.NetConstants;
+import battleship.common.GameSettings;
+import battleship.server.NetServer;
 
 public class SetupServerPanel extends JPanel {
-    /**
-     * @author dan
-     *
-     */
-    private class SettingsPanel extends JPanel {
-        private static final long serialVersionUID = 1L;
-        
-        private JSpinner boardSizeSpinner;
-        private JTextField shipLengthsField;
-        private JTextField portField;
-        
-        public SettingsPanel()
-        {
-            super(new GridBagLayout());
-            
-            boardSizeSpinner = new JSpinner(new SpinnerNumberModel(GameConstants.DEFAULT_BOARD_WIDTH, 5, 30, 1));
-            shipLengthsField = new JTextField(GameConstants.DEFAULT_SHIP_LENGTHS);
-            shipLengthsField.setColumns(15);
-            portField = new JTextField(Integer.toString(NetConstants.DEFAULT_PORT));
-            
-            GridBagConstraints c = new GridBagConstraints();
-            
-            c.gridx = 0;
-            c.gridy = 0;
-            c.ipadx = 10;
-            c.anchor = GridBagConstraints.LINE_START;
-            
-            add(new JLabel("Board size:"), c);
-            
-            c.gridx++;
-            add(boardSizeSpinner, c);
-            
-            c.gridx = 0;
-            c.gridy++;
-            
-            add(new JLabel("Ship lengths:"), c);
-            c.gridx++;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            add(shipLengthsField, c);
-            
-            c.gridx = 0;
-            c.gridy++;
-            
-            add(new JLabel("Port:"), c);
-            c.gridx++;
-            c.fill = GridBagConstraints.HORIZONTAL;
-            add(portField, c);
-        }
-        
-        public int getBoardSize()
-        {
-            return (Integer)boardSizeSpinner.getValue();
-        }
-        
-        /**
-         * @param shipLengths
-         * @return True if form text is valid, false if invald
-         */
-        public boolean getShipLengths(List<Byte> shipLengths)
-        {
-            Scanner k = new Scanner(shipLengthsField.getText());
-            k.useDelimiter(",");
-            
-            int boardSize = getBoardSize();
-            
-            while (k.hasNext()) {
-                String numStr = k.next().trim();
-                
-                // allow empty strings (e.g. from parsing "5, 4, , 3,")
-                if (numStr.isEmpty())
-                    continue;
-                
-                boolean invalid = false;
-                
-                try {
-                    byte b = Byte.parseByte(numStr);
-                    
-                    // invalid if length is less than 1, or longer than board
-                    invalid |= b < 1 || b > boardSize;
-                    
-                    shipLengths.add(b);
-                } catch (NumberFormatException e) {
-                    // not a number
-                    invalid |= true;
-                }
-                
-                if (invalid) {
-                    shipLengths.clear();
-                    return false;
-                }
-            }
-            
-            if (shipLengths.size() < 1) {
-                // no ships
-                return false;
-            }
-            
-            return true;
-        }
-        
-        public int getPort()
-        {
-            String portStr = portField.getText();
-            int port;
-            
-            try {
-                port = Integer.parseInt(portStr);
-            } catch (NumberFormatException e) {
-                port = NetConstants.DEFAULT_PORT;
-            }
-            
-            return port;
-        }
-    }
-    
     private static final long serialVersionUID = 1L;
     
     private SettingsPanel settingsPanel;
+    private NetServer netServer;
+    private JButton startButton, stopButton;
+    private JTextArea logArea;
 
     public SetupServerPanel()
     {
@@ -145,10 +31,14 @@ public class SetupServerPanel extends JPanel {
         
         settingsPanel = new SettingsPanel();
         
-        JButton startButton = new JButton("Start");
+        startButton = new JButton("Start");
+        stopButton = new JButton("Stop");
+        logArea = new JTextArea();
+        logArea.setEditable(false);
+        
         startButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e)
+            public void actionPerformed(ActionEvent arg)
             {
                 ArrayList<Byte> shipLengths = new ArrayList<>();
                 int boardSize, port;
@@ -158,9 +48,44 @@ public class SetupServerPanel extends JPanel {
                 } else {
                     boardSize = settingsPanel.getBoardSize();
                     port = settingsPanel.getPort();
+                    
+                    byte[] arr = new byte[shipLengths.size()];
+                    
+                    int i = 0;
+                    for (byte shipLength: shipLengths) {
+                        arr[i] = shipLength;
+                        i++;
+                    }
+                    
+                    GameSettings gameSettings = new GameSettings(boardSize, arr);
+                    
+                    try {
+                        netServer = new NetServer(gameSettings, port);
+                        
+                        new Thread(netServer).start();
+                        
+                        start();
+                    } catch (IOException e) {
+                        JOptionPane.showMessageDialog(null, "Error starting server: " + e);
+                    }
                 }
             }
         });
+        
+        stopButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg)
+            {
+                netServer.stop();
+                netServer = null;
+                
+                stop();
+            }
+        });
+        
+        JPanel startStopPanel = new JPanel(new GridLayout());
+        startStopPanel.add(startButton);
+        startStopPanel.add(stopButton);
         
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
@@ -171,7 +96,31 @@ public class SetupServerPanel extends JPanel {
         
         c.gridy++;
         c.fill = GridBagConstraints.NONE;
+        add(startStopPanel, c);
         
-        add(startButton, c);
+        c.gridy++;
+        c.weightx = 1.0;
+        c.weighty = 1.0;
+        c.fill = GridBagConstraints.BOTH;
+        add(new JScrollPane(logArea), c);
+        
+        setRunningStatus(false);
+    }
+    
+    private void setRunningStatus(boolean running)
+    {
+        settingsPanel.setEnabled(!running);
+        startButton.setEnabled(!running);
+        stopButton.setEnabled(running);
+    }
+    
+    private void start()
+    {
+        setRunningStatus(true);
+    }
+    
+    private void stop()
+    {
+        setRunningStatus(false);
     }
 }

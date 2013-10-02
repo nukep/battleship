@@ -72,4 +72,9 @@ public class WelcomePanel extends JPanel {
     {
         return joinPanel.getDefaultButton();
     }
+
+    public BusyListener getBusyListener()
+    {
+        return joinPanel;
+    }
 }

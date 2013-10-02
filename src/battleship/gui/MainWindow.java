@@ -119,6 +119,7 @@ public class MainWindow {
     
     public void switchToWelcomePage()
     {
+        welcomePage.getBusyListener().unbusy();
         frame.setContentPane(welcomePage);
         frame.getRootPane().setDefaultButton(welcomePage.getDefaultButton());
         frame.revalidate();
