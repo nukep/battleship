@@ -2,19 +2,25 @@ package battleship.server;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 import battleship.common.GameSettings;
 import battleship.common.Player;
 
+/**
+ * The NetMatchmaker class pairs client connections to new game instances.
+ * As the name implies, it makes matches.
+ *
+ */
 class NetMatchmaker {
     private LinkedList<NetGame> activeGames;
     private NetGame waitingGame;
     private GameSettings gameSettings;
+    private NetServerNotify serverNotify;
     
-    public NetMatchmaker(GameSettings gameSettings)
+    public NetMatchmaker(GameSettings gameSettings, NetServerNotify serverNotify)
     {
         this.gameSettings = gameSettings;
+        this.serverNotify = serverNotify;
         activeGames = new LinkedList<>();
         waitingGame = null;
     }
@@ -30,7 +36,7 @@ class NetMatchmaker {
         
         if (firstPlayer) {
             // create a new game
-            game = new NetGame(conn, player, gameSettings);
+            game = new NetGame(conn, player, gameSettings, serverNotify);
             // start its thread
             game.start();
             waitingGame = game;
@@ -41,6 +47,8 @@ class NetMatchmaker {
 
             activeGames.add(game);
             game.addSecondConnection(conn, player);
+            
+            serverNotify.gameStarted(game);
         }
         
         if (firstPlayer) {
@@ -66,6 +74,7 @@ class NetMatchmaker {
                 NetGame g = it.next();
                 if (g.hasConnection(conn)) {
                     g.close();
+                    serverNotify.gameFinished(g);
                     it.remove();
                     break;
                 }

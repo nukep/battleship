@@ -269,11 +269,7 @@ public class GameplayPanel extends JPanel {
             @Override
             public void playAgain(boolean yes)
             {
-                if (yes) {
-                    
-                } else {
-                    
-                }
+                m2s.disconnect();
             }
         };
     }

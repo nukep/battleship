@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 import java.util.LinkedList;
 import java.util.List;
 
-import battleship.common.GameConstants;
 import battleship.common.ShipConfiguration;
 import battleship.gui.client.BoardPanelDraw;
 import battleship.gui.client.UIUpdate;
@@ -15,6 +14,7 @@ import battleship.gui.client.UIUpdate;
  * The player places their ships on the board. Once they are done, the game
  * commences.
  */
+
 public class ConfigureFleet implements GameMode {
     public interface Done {
         public void done();

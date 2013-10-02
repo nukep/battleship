@@ -3,6 +3,11 @@ package battleship.server;
 import battleship.common.Ship;
 import battleship.common.ShipConfiguration;
 
+/**
+ * The ShipHits class keeps track of which ships are hit and where.
+ * This class is used to ultimately determine the winner.
+ *
+ */
 public class ShipHits {
     private boolean[][] shipHits;
     private ShipConfiguration shipConfiguration;

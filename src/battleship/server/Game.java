@@ -9,21 +9,28 @@ import battleship.common.ShipConfiguration;
 
 /**
  * The Game class is responsible for maintaining the game state between two
- * players.
+ * players. It runs the game logic.
  *
  */
-public class Game {    
+public class Game {
+    public interface GameNotify {
+        public void victor(Player player);
+    }
+    
     class GameState {
         private PlayerState ps1, ps2;
+        private GameNotify gameNotify;
         
         public GameState(MessageToClient m2c_p1, MessageToClient m2c_p2,
-                         Player p1, Player p2)
+                         Player p1, Player p2, GameNotify gameNotify)
         {
             ps1 = new PlayerState(m2c_p1, p1);
             ps2 = new PlayerState(m2c_p2, p2);
             
             ps1.m2s = new PlayerInput(this, ps1, ps2);
             ps2.m2s = new PlayerInput(this, ps2, ps1);
+            
+            this.gameNotify = gameNotify;
         }
         
         public void configureFleet(ShipConfiguration ships, PlayerState p)
@@ -46,6 +53,11 @@ public class Game {
             }
         }
         
+        public void victor(Player player)
+        {
+            gameNotify.victor(player);
+        }
+        
         private void startFirstTurn()
         {
             // randomly select whose turn is first
@@ -59,9 +71,9 @@ public class Game {
     private GameState gameState;
 
     public Game(MessageToClient m2c_p1, MessageToClient m2c_p2,
-                Player p1, Player p2)
+                Player p1, Player p2, GameNotify gameNotify)
     {
-        this.gameState = new GameState(m2c_p1, m2c_p2, p1, p2);
+        this.gameState = new GameState(m2c_p1, m2c_p2, p1, p2, gameNotify);
     }
     
     public MessageToServer getMessageToServer(int playerNumber)
@@ -143,6 +155,12 @@ class PlayerInput implements MessageToServer {
             // you won, opponent lost
             you.m2c.gameComplete(true);
             opponent.m2c.gameComplete(false);
+            gameState.victor(you.player);
         }
+    }
+
+    @Override
+    public void disconnect()
+    {
     }
 }

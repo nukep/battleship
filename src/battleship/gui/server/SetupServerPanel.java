@@ -6,17 +6,26 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import battleship.common.GameSettings;
+import battleship.common.Player;
+import battleship.server.NetGame;
 import battleship.server.NetServer;
+import battleship.server.NetServerNotify;
 
+/**
+ * The SetupServerPanel lets the user configure and start/stop the server
+ */
 public class SetupServerPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     
@@ -24,6 +33,34 @@ public class SetupServerPanel extends JPanel {
     private NetServer netServer;
     private JButton startButton, stopButton;
     private JTextArea logArea;
+    
+    private NetServerNotify netServerNotify = new NetServerNotify() {
+        @Override
+        public void gameStarted(NetGame game)
+        {
+            String p1name = game.getPlayer(0).getName();
+            String p2name = game.getPlayer(2).getName();
+            addToLog(String.format("Game started: %s vs %s", p1name, p2name));
+        }
+        
+        @Override
+        public void gameVictor(NetGame game, Player player)
+        {
+            String p1name = game.getPlayer(0).getName();
+            String p2name = game.getPlayer(2).getName();
+            String winner = player.getName();
+            addToLog(String.format("%s vs %s: %s wins!", p1name, p2name, winner));
+        }
+
+        @Override
+        public void gameFinished(NetGame game)
+        {
+            String p1name = game.getPlayer(0).getName();
+            String p2name = game.getPlayer(2).getName();
+            addToLog(String.format("Game ended: %s vs %s", p1name, p2name));
+        }
+
+    };
 
     public SetupServerPanel()
     {
@@ -60,7 +97,7 @@ public class SetupServerPanel extends JPanel {
                     GameSettings gameSettings = new GameSettings(boardSize, arr);
                     
                     try {
-                        netServer = new NetServer(gameSettings, port);
+                        netServer = new NetServer(gameSettings, port, netServerNotify);
                         
                         new Thread(netServer).start();
                         
@@ -121,6 +158,26 @@ public class SetupServerPanel extends JPanel {
     
     private void stop()
     {
+        logArea.setText("");
         setRunningStatus(false);
+    }
+    
+    private void addToLog(final String message)
+    {
+        final SimpleDateFormat chatDateFormat = new SimpleDateFormat("h:mm:ss a");
+        final Date date = new Date();
+        
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run()
+            {
+                String m = chatDateFormat.format(date) + ": " + message + "\n";
+                logArea.append(m);
+                logArea.updateUI();
+                
+                // scroll to the bottom of the text box
+                logArea.setCaretPosition(logArea.getDocument().getLength());
+            }
+        });
     }
 }

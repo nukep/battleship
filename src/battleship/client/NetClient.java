@@ -92,6 +92,12 @@ public class NetClient implements MessageToServer {
     {
         outputQueue.add(new NetServerStrike(x, y));
     }
+
+    @Override
+    public void disconnect()
+    {
+        outputQueue.add(new NetServerDisconnect());
+    }
 }
 
 class InputRunnable implements Runnable {

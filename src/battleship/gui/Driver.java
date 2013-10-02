@@ -1,5 +1,9 @@
 package battleship.gui;
 
+/**
+ * The main entry point of the application
+ *
+ */
 public class Driver {
     public static void main(String[] args)
     {

@@ -38,4 +38,8 @@ public interface MessageToServer {
      * @param y
      */
     public void strikeSquare(int x, int y);
+    /**
+     * Tell the server to gracefully disconnect the client.
+     */
+    public void disconnect();
 }

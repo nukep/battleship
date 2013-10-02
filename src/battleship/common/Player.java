@@ -1,5 +1,9 @@
 package battleship.common;
 
+/**
+ * Represents a player
+ *
+ */
 public class Player {
     private String name;
     

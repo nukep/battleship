@@ -4,18 +4,22 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.List;
 
 import battleship.common.GameSettings;
 
+/**
+ * The NetServer class is responsible for accepting and maintaining client
+ * connections and their games.
+ *
+ */
 public class NetServer implements Runnable {
     private ServerSocket server_socket;
     private NetMatchmaker matchMaker;
 
-    public NetServer(GameSettings gameSettings, int port) throws IOException
+    public NetServer(GameSettings gameSettings, int port, NetServerNotify serverNotify) throws IOException
     {
         server_socket = new ServerSocket(port);
-        matchMaker = new NetMatchmaker(gameSettings);
+        matchMaker = new NetMatchmaker(gameSettings, serverNotify);
     }
 
     @Override

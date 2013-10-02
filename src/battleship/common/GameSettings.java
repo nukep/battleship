@@ -1,5 +1,12 @@
 package battleship.common;
 
+/**
+ * The GameSettings class stores all customizable settings for a game.
+ * <p>
+ * In this case, it stores the board size (size x size), and an array of
+ * placeable ship lengths.
+ *
+ */
 public class GameSettings {
     private int boardSize;
     private byte[] shipLengths;

@@ -14,6 +14,10 @@ import javax.swing.SpinnerNumberModel;
 import battleship.common.GameConstants;
 import battleship.common.NetConstants;
 
+/**
+ * The Settings panel contains controls for the games to be run on the server
+ *
+ */
 class SettingsPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     
@@ -70,6 +74,7 @@ class SettingsPanel extends JPanel {
      */
     public boolean getShipLengths(List<Byte> shipLengths)
     {
+        @SuppressWarnings("resource")
         Scanner k = new Scanner(shipLengthsField.getText());
         k.useDelimiter(",");
         

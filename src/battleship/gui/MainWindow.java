@@ -19,7 +19,7 @@ import battleship.gui.client.WelcomePanel;
 import battleship.gui.server.SetupServerPanel;
 
 /**
- * The MainWindow class is the primary window (frame) used by the Client GUI.
+ * The MainWindow class is the primary window (frame) used by the GUI.
  *
  */
 public class MainWindow {

@@ -24,7 +24,13 @@ import battleship.netmessages.client.NetClientOpponentStrike;
 import battleship.netmessages.client.NetClientSettings;
 import battleship.netmessages.client.NetClientTurn;
 import battleship.netmessages.server.NetServerConnect;
+import battleship.netmessages.server.NetServerDisconnect;
 
+/**
+ * The NetConnection class is a socket connection and its associated
+ * input/output threads.
+ *
+ */
 class NetConnection {    
     private static class NetConnectionM2C implements MessageToClient
     {
@@ -210,6 +216,10 @@ class InputRunnable implements Runnable {
             while (true) {
                 MessageNetServer message;
                 message = (MessageNetServer)ois.readObject();
+                
+                if (message instanceof NetServerDisconnect) {
+                    break;
+                }
 
                 messageQueue.add(message);
             }

@@ -8,7 +8,7 @@ import battleship.common.MessageToServer;
 import battleship.common.Player;
 import battleship.netmessages.MessageNetServer;
 
-class NetGame extends Thread {
+public class NetGame extends Thread {
     private Object secondConnectionCondition;
     private NetConnection conn1, conn2;
     private Player player1, player2;
@@ -16,15 +16,17 @@ class NetGame extends Thread {
     private BlockingQueue<NetGameMessage> serverQueue;
     private Game game;
     private GameSettings gameSettings;
+    private NetServerNotify netServerNotify;
     
     public NetGame(NetConnection conn1, Player player1,
-                   GameSettings gameSettings)
+                   GameSettings gameSettings, NetServerNotify netServerNotify)
     {
         this.conn1 = conn1;
         this.conn2 = null;
         this.player1 = player1;
         this.player2 = null;
         this.gameSettings = gameSettings;
+        this.netServerNotify = netServerNotify;
         
         secondConnectionCondition = new Object();
         this.serverQueue = new LinkedBlockingQueue<>();
@@ -64,9 +66,17 @@ class NetGame extends Thread {
             player2 = player;
             conn2.getMessageToClient().settings(gameSettings);
             
+            Game.GameNotify gameNotify = new Game.GameNotify() {
+                @Override
+                public void victor(Player player)
+                {
+                    netServerNotify.gameVictor(NetGame.this, player);
+                }
+            };
+            
             this.game = new Game(conn1.getMessageToClient(),
                                  conn2.getMessageToClient(),
-                                 player1, player2);
+                                 player1, player2, gameNotify);
             secondConnectionCondition.notify();
         }
     }
@@ -90,6 +100,11 @@ class NetGame extends Thread {
         }
         
         this.interrupt();
+    }
+    
+    public Player getPlayer(int playerNumber)
+    {
+        return playerNumber == 0 ? player1:player2;
     }
 }
 
