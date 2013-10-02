@@ -31,7 +31,7 @@ public class ConfigureFleet implements GameMode {
     private Done done;
     
     public ConfigureFleet(ShipConfiguration ships, UIUpdate update,
-                          Done done)
+                          Done done, byte[] shipLengths)
     {
         this.ships = ships;
         this.update = update;
@@ -40,7 +40,7 @@ public class ConfigureFleet implements GameMode {
         this.hover = false;
         this.horizontal = true;
         this.remainingShips = new LinkedList<>();
-        for (byte l: GameConstants.SHIP_LENGTHS) {
+        for (byte l: shipLengths) {
             remainingShips.add(new Integer(l));
         }
         

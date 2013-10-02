@@ -2,15 +2,19 @@ package battleship.server;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
+import battleship.common.GameSettings;
 import battleship.common.Player;
 
 class NetMatchmaker {
     private LinkedList<NetGame> activeGames;
     private NetGame waitingGame;
+    private GameSettings gameSettings;
     
-    public NetMatchmaker()
+    public NetMatchmaker(GameSettings gameSettings)
     {
+        this.gameSettings = gameSettings;
         activeGames = new LinkedList<>();
         waitingGame = null;
     }
@@ -26,7 +30,7 @@ class NetMatchmaker {
         
         if (firstPlayer) {
             // create a new game
-            game = new NetGame(conn, player);
+            game = new NetGame(conn, player, gameSettings);
             // start its thread
             game.start();
             waitingGame = game;

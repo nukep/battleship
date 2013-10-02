@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import battleship.common.GameSettings;
 import battleship.common.MessageToClient;
 import battleship.common.Player;
 import battleship.netmessages.MessageNetClient;
@@ -20,6 +21,7 @@ import battleship.netmessages.client.NetClientGameComplete;
 import battleship.netmessages.client.NetClientHitMiss;
 import battleship.netmessages.client.NetClientOpponentJoin;
 import battleship.netmessages.client.NetClientOpponentStrike;
+import battleship.netmessages.client.NetClientSettings;
 import battleship.netmessages.client.NetClientTurn;
 import battleship.netmessages.server.NetServerConnect;
 
@@ -66,6 +68,11 @@ class NetConnection {
         @Override
         public void gameComplete(boolean youWin) {
             queue.add(new NetClientGameComplete(youWin));
+        }
+
+        @Override
+        public void settings(GameSettings settings) {
+            queue.add(new NetClientSettings(settings));
         }
     }
     

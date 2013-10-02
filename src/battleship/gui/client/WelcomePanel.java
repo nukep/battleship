@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -23,13 +25,18 @@ public class WelcomePanel extends JPanel {
             title.setFont(new Font(null, Font.BOLD, 40));
             add(title);
         }
-        
     }
+    
+    public interface SetupServer {
+        public void setupServer();
+    }
+    
     private static final long serialVersionUID = 1L;
 
     private JoinPanel joinPanel;
     
-    public WelcomePanel(JoinPanel.JoinCallback joinCallback)
+    public WelcomePanel(JoinPanel.JoinCallback joinCallback,
+                        final SetupServer setupServer)
     {
         super(new GridBagLayout());
         joinPanel = new JoinPanel(joinCallback);
@@ -47,6 +54,18 @@ public class WelcomePanel extends JPanel {
         c.fill = GridBagConstraints.NONE;
         c.gridy++;
         this.add(joinPanel, c);
+        
+        c.gridy++;
+        
+        JButton setupServerButton = new JButton("Set up server");
+        setupServerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                setupServer.setupServer();
+            }
+        });
+        
+        this.add(setupServerButton, c);
     }
 
     public JButton getDefaultButton()

@@ -19,7 +19,7 @@ import javax.swing.SwingUtilities;
  * </p>
  */
 public class JoinPanel extends JPanel implements BusyListener {
-    interface JoinCallback {
+    public interface JoinCallback {
         public void join(String playerName, String address, BusyListener busy);
     }
 

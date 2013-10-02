@@ -4,15 +4,18 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.List;
+
+import battleship.common.GameSettings;
 
 public class NetServer implements Runnable {
     private ServerSocket server_socket;
     private NetMatchmaker matchMaker;
 
-    public NetServer(int port) throws IOException
+    public NetServer(GameSettings gameSettings, int port) throws IOException
     {
         server_socket = new ServerSocket(port);
-        matchMaker = new NetMatchmaker();
+        matchMaker = new NetMatchmaker(gameSettings);
     }
 
     @Override

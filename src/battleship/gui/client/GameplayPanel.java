@@ -19,7 +19,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import battleship.client.HitMissMap;
-import battleship.common.GameConstants;
+import battleship.common.GameSettings;
 import battleship.common.MessageToServer;
 import battleship.common.ShipConfiguration;
 import battleship.gui.client.gamemodes.ConfigureFleet;
@@ -209,7 +209,7 @@ public class GameplayPanel extends JPanel {
     private HitMissMap fleetHitMiss;
     private PlayAgain playAgain;
     
-    public GameplayPanel(String name)
+    public GameplayPanel(String name, GameSettings gameSettings)
     {
         super(new GridBagLayout());
         
@@ -222,13 +222,11 @@ public class GameplayPanel extends JPanel {
         c.gridx = 0;
         c.gridy = 0;
         
-        int you_cols, you_rows, opponent_cols, opponent_rows;
-        you_cols = opponent_cols = GameConstants.BOARD_WIDTH;
-        you_rows = opponent_rows = GameConstants.BOARD_WIDTH;
+        int boardSize = gameSettings.getBoardSize();
 
-        this.shipConfiguration = new ShipConfiguration(you_cols, you_rows);
-        this.targetHitMiss = new HitMissMap(opponent_cols, opponent_rows);
-        this.fleetHitMiss  = new HitMissMap(you_cols, you_rows);
+        this.shipConfiguration = new ShipConfiguration(boardSize, boardSize);
+        this.targetHitMiss = new HitMissMap(boardSize, boardSize);
+        this.fleetHitMiss  = new HitMissMap(boardSize, boardSize);
         
         this.boardPanel = new BoardPanel(shipConfiguration, targetHitMiss, fleetHitMiss);
         
@@ -261,7 +259,7 @@ public class GameplayPanel extends JPanel {
                     uiUpdate.statusMessage("Waiting for other player", true);
                     m2s.configureFleet(shipConfiguration);
                 }
-            }
+            }, gameSettings.getShipLengths()
         );
         
         this.boardPanel.setGameMode(gameMode);

@@ -6,8 +6,11 @@ import java.util.Date;
 
 import javax.swing.JOptionPane;
 
+import battleship.client.Connect;
+import battleship.common.GameSettings;
 import battleship.common.MessageToClient;
 import battleship.common.MessageToServer;
+import battleship.gui.MainWindow;
 import battleship.gui.client.gamemodes.TargetStrike;
 
 /**
@@ -21,15 +24,23 @@ import battleship.gui.client.gamemodes.TargetStrike;
  */
 public class M2C implements MessageToClient {
     private MainWindow mainWindow;
+    private Connect connect;
     private MessageToServer m2s;
     private UIUpdate uiUpdate;
     private TargetStrike targetStrike;
     private DateFormat chatDateFormat;
     private int target_x, target_y;
+    private GameSettings gameSettings;
 
-    public M2C(MainWindow mainWindow, UIUpdate uiUpdate)
+    public M2C(MainWindow mainWindow, Connect connect)
     {
         this.mainWindow = mainWindow;
+        this.connect = connect;
+        chatDateFormat = new SimpleDateFormat("h:mm:ss a");
+    }
+    
+    private void setUIUpdate(UIUpdate uiUpdate)
+    {
         this.uiUpdate = uiUpdate;
         this.targetStrike = new TargetStrike(uiUpdate, new TargetStrike.Click() {
             @Override
@@ -43,11 +54,11 @@ public class M2C implements MessageToClient {
                 M2C.this.uiUpdate.statusMessage("", true);
             }
         });
-        chatDateFormat = new SimpleDateFormat("h:mm:ss a");
     }
     
     @Override
     public void opponentJoin(String name) {
+        setUIUpdate(mainWindow.switchToGameplay(connect.getPlayerName(), connect.getMessageToServer(), this, gameSettings));
         uiUpdate.appendChatbox(name + " joined the game!");
     }
 
@@ -106,5 +117,10 @@ public class M2C implements MessageToClient {
 
     public void setMessageToServer(MessageToServer m2s) {
         this.m2s = m2s;
+    }
+
+    @Override
+    public void settings(GameSettings settings) {
+        this.gameSettings = settings;
     }
 }

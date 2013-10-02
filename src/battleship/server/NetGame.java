@@ -3,6 +3,7 @@ package battleship.server;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import battleship.common.GameSettings;
 import battleship.common.MessageToServer;
 import battleship.common.Player;
 import battleship.netmessages.MessageNetServer;
@@ -14,17 +15,22 @@ class NetGame extends Thread {
     
     private BlockingQueue<NetGameMessage> serverQueue;
     private Game game;
+    private GameSettings gameSettings;
     
-    public NetGame(NetConnection conn1, Player player1)
+    public NetGame(NetConnection conn1, Player player1,
+                   GameSettings gameSettings)
     {
         this.conn1 = conn1;
         this.conn2 = null;
         this.player1 = player1;
         this.player2 = null;
+        this.gameSettings = gameSettings;
         
         secondConnectionCondition = new Object();
         this.serverQueue = new LinkedBlockingQueue<>();
         this.game = null;
+        
+        conn1.getMessageToClient().settings(gameSettings);
     }
 
     @Override
@@ -56,6 +62,8 @@ class NetGame extends Thread {
         synchronized (secondConnectionCondition) {
             conn2 = connection;
             player2 = player;
+            conn2.getMessageToClient().settings(gameSettings);
+            
             this.game = new Game(conn1.getMessageToClient(),
                                  conn2.getMessageToClient(),
                                  player1, player2);

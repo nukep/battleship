@@ -67,4 +67,9 @@ public interface MessageToClient {
      * @param youWin True if you win, false if opponent wins
      */
     public void gameComplete(boolean youWin);
+    /**
+     * @param boardSize
+     * @param shipLengths
+     */
+    public void settings(GameSettings settings);
 }
