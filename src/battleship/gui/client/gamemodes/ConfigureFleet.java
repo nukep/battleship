@@ -1,13 +1,13 @@
-package battleship.clientgui.gamemodes;
+package battleship.gui.client.gamemodes;
 
 import java.awt.Graphics2D;
 import java.util.LinkedList;
 import java.util.List;
 
-import battleship.clientgui.BoardPanelDraw;
-import battleship.clientgui.UIUpdate;
 import battleship.common.GameConstants;
 import battleship.common.ShipConfiguration;
+import battleship.gui.client.BoardPanelDraw;
+import battleship.gui.client.UIUpdate;
 
 /**
  * The ConfigureFleet game mode is active when first starting the game.

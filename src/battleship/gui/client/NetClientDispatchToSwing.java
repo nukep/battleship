@@ -1,4 +1,4 @@
-package battleship.clientgui;
+package battleship.gui.client;
 
 import javax.swing.SwingUtilities;
 

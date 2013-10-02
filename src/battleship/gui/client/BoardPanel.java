@@ -1,4 +1,4 @@
-package battleship.clientgui;
+package battleship.gui.client;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -11,9 +11,9 @@ import java.util.Iterator;
 import javax.swing.JPanel;
 
 import battleship.client.HitMissMap;
-import battleship.clientgui.gamemodes.GameMode;
 import battleship.common.Ship;
 import battleship.common.ShipConfiguration;
+import battleship.gui.client.gamemodes.GameMode;
 
 /**
  * Displays and manages the two game boards. The first game board shown is

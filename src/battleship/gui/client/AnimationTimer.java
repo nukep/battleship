@@ -1,4 +1,4 @@
-package battleship.clientgui;
+package battleship.gui.client;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

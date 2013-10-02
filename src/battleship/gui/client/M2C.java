@@ -1,4 +1,4 @@
-package battleship.clientgui;
+package battleship.gui.client;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -6,9 +6,9 @@ import java.util.Date;
 
 import javax.swing.JOptionPane;
 
-import battleship.clientgui.gamemodes.TargetStrike;
 import battleship.common.MessageToClient;
 import battleship.common.MessageToServer;
+import battleship.gui.client.gamemodes.TargetStrike;
 
 /**
  * The Swing client's MessageToClient implementation.

@@ -1,9 +1,9 @@
-package battleship.clientgui.gamemodes;
+package battleship.gui.client.gamemodes;
 
 import java.awt.Graphics2D;
 
-import battleship.clientgui.BoardPanelDraw;
-import battleship.clientgui.UIUpdate;
+import battleship.gui.client.BoardPanelDraw;
+import battleship.gui.client.UIUpdate;
 
 /**
  * The TargetStrike game mode is active when it's the player's turn to strike.

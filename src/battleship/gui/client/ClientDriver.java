@@ -1,4 +1,4 @@
-package battleship.clientgui;
+package battleship.gui.client;
 
 /**
  * The main driver class of the Client GUI

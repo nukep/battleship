@@ -1,8 +1,8 @@
-package battleship.clientgui.gamemodes;
+package battleship.gui.client.gamemodes;
 
 import java.awt.Graphics2D;
 
-import battleship.clientgui.BoardPanelDraw;
+import battleship.gui.client.BoardPanelDraw;
 
 /**
  * A GameMode represents a state of the BoardPanel control.

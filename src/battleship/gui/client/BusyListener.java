@@ -1,4 +1,4 @@
-package battleship.clientgui;
+package battleship.gui.client;
 
 /**
  * BusyListener is used to signal the UI that a busy operation is undergoing.

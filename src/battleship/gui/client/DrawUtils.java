@@ -1,4 +1,4 @@
-package battleship.clientgui;
+package battleship.gui.client;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;

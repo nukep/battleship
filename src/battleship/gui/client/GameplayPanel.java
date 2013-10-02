@@ -1,4 +1,4 @@
-package battleship.clientgui;
+package battleship.gui.client;
 
 import java.awt.Dimension;
 import java.awt.Font;
@@ -19,11 +19,11 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import battleship.client.HitMissMap;
-import battleship.clientgui.gamemodes.ConfigureFleet;
-import battleship.clientgui.gamemodes.GameMode;
 import battleship.common.GameConstants;
 import battleship.common.MessageToServer;
 import battleship.common.ShipConfiguration;
+import battleship.gui.client.gamemodes.ConfigureFleet;
+import battleship.gui.client.gamemodes.GameMode;
 
 /**
  * The Gameplay panel contains everything needed for playing the game.

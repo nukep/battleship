@@ -1,6 +1,6 @@
-package battleship.clientgui;
+package battleship.gui.client;
 
-import battleship.clientgui.gamemodes.GameMode;
+import battleship.gui.client.gamemodes.GameMode;
 
 public interface UIUpdate {
     public void update();
