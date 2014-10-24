@@ -1,0 +1,10 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.7
+
+mainClassName = 'battleship.gui.Driver'
+
+jar {
+    manifest.attributes("Main-Class": mainClassName)
+}
